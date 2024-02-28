@@ -16,4 +16,6 @@ class Message(db.Model):
         db.session.delete(self)
         db.session.commit()
     
-    
+    def update(self, new_content):
+        self.content = new_content
+        db.session.commit()
