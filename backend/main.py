@@ -3,6 +3,7 @@ from flask_restx import Api, Resource, fields
 from config import DevConfig
 from models import Message
 from exts import db
+from flask_migrate import Migrate
 
 # Create Flask application instance
 app = Flask(__name__)
@@ -12,6 +13,9 @@ app.config.from_object(DevConfig)
 
 # Initialize the database
 db.init_app(app)
+
+# Initialize the Flask-Migrate extension
+migrate = Migrate(app, db)
 
 # Create Flask-RestX API instance
 api = Api(app, doc='/docs')
