@@ -19,6 +19,22 @@ class Account(db.Model):
     def __repr__(self):
         return f"<Account(id={self.id}, username={self.username}, email={self.email})>"
     
+    # Method to save the account to the database
+    def save(self):
+        db.session.add(self)
+        db.session.commit()
+    
+    # Method to delete the account from the database
+    def delete(self):
+        db.session.delete(self)
+        db.session.commit()
+
+    # Method to update the account in the database
+    def update(self, new_username, new_password):
+        self.username = new_username
+        self.password = new_password        
+        db.session.commit()
+    
 # APIKey model
 class APIKey(db.Model):
     id = db.Column(db.Integer(), primary_key=True)
@@ -29,6 +45,16 @@ class APIKey(db.Model):
 
     def __repr__(self):
         return f"<APIKey(id={self.id}, api_key={self.api_key})>"
+    
+    # Method to save the API key to the database
+    def save(self):
+        db.session.add(self)
+        db.session.commit()
+    
+    # Method to delete the API key from the database
+    def delete(self):
+        db.session.delete(self)
+        db.session.commit()
     
 # Conversation model    
 class Conversation(db.Model):
@@ -46,6 +72,11 @@ class Conversation(db.Model):
 
     def __repr__(self):
         return f"<Conversation(id={self.id}, title={self.title}, date_created={self.date_created})>"
+    
+    # Method to save the conversation to the database
+    def save(self):
+        db.session.add(self)
+        db.session.commit()                
 
 # Message model
 class Message(db.Model):
@@ -57,7 +88,12 @@ class Message(db.Model):
     conversation_id = db.Column(db.Integer(), db.ForeignKey('conversation.id', name='fk_message_conversation'), nullable=False)
 
     def __repr__(self):
-        return f"<Message(id={self.id}, content={self.content})>"
+        return f"<Message(id={self.id}, content={self.content}, message_number={self.message_number}, conversation_id={self.conversation_id})>"
+    
+    # Method to save the message to the database
+    def save(self):
+        db.session.add(self)
+        db.session.commit()    
 
 """# Message model
 class Message(db.Model):
