@@ -5,6 +5,7 @@ from models import Account, Message, Conversation, APIKey
 from exts import db
 from flask_migrate import Migrate
 from werkzeug.security import generate_password_hash, check_password_hash
+from flask_jwt_extended import JWTManager, create_access_token, create_refresh_token, jwt_required
 
 # Create Flask application instance
 app = Flask(__name__)
@@ -17,6 +18,9 @@ db.init_app(app)
 
 # Initialize the Flask-Migrate extension
 migrate = Migrate(app, db)
+
+# Initialize the Flask-JWT-Extended extension
+jwt = JWTManager(app)
 
 # Create Flask-RestX API instance
 api = Api(app, doc='/docs')
@@ -75,15 +79,21 @@ class HelloResource(Resource):
 
 @api.route('/login', methods=['POST'])
 class LoginResource(Resource):
-    @api.marshal_with(account_model)
     @api.expect(account_model)
     def post(self):
         data = request.get_json()
         
-        account = Account.query.filter_by(username=data.get('username')).first()
+        db_user = Account.query.filter_by(username=data.get('username')).first()
         
-        if account and account.password == data.get('password'):
-            return {'message': 'Login successful'}, 200
+        # Check if the account with the username exists and the password is correct
+        if db_user and check_password_hash(db_user.password, data.get('password')):
+
+            # Create access and refresh tokens
+            access_token = create_access_token(identity=db_user.username)
+            refresh_token = create_refresh_token(identity=db_user.username)
+
+            # Return the tokens
+            return {'access _token': access_token, 'refresh_token': refresh_token}, 200
         else:
             return {'message': 'Invalid credentials'}, 401
     
@@ -126,6 +136,7 @@ class AccountsResource(Resource):
 @api.route('/accounts/<int:account_id>', methods=['GET', 'PUT', 'DELETE'])
 class AccountResource(Resource):
     @api.marshal_with(account_model)
+    @jwt_required() # Protect this endpoint with JWT
     def get(self, account_id):
         account = Account.query.get(account_id)
         
@@ -133,6 +144,7 @@ class AccountResource(Resource):
     
     @api.marshal_with(account_model)
     @api.expect(account_model)
+    @jwt_required() # Protect this endpoint with JWT
     def put(self, account_id):
         account = Account.query.get(account_id)
         data = request.get_json()
@@ -144,6 +156,7 @@ class AccountResource(Resource):
         
         return account
         
+    @jwt_required() # Protect this endpoint with JWT
     def delete(self, account_id):
         account = Account.query.get(account_id)
         
@@ -159,6 +172,7 @@ class MessagesResource(Resource):
     # Create a new message
     @api.marshal_with(message_model)
     @api.expect(message_model)
+    @jwt_required() # Protect this endpoint with JWT
     def post(self):
         data = request.get_json()
 
@@ -174,6 +188,7 @@ class MessagesResource(Resource):
 class MessageResource(Resource):
     # Get a message by ID
     @api.marshal_list_with(message_model)
+    @jwt_required() # Protect this endpoint with JWT
     def get(self, conversation_id):
         messages = Message.query.filter_by(conversation_id=conversation_id).all()
 
@@ -185,6 +200,7 @@ class ConversationsResource(Resource):
     # Create a new conversation
     @api.marshal_with(conversation_model)
     @api.expect(conversation_model)
+    @jwt_required() # Protect this endpoint with JWT
     def post(self):
         data = request.get_json()
 
@@ -199,6 +215,7 @@ class ConversationsResource(Resource):
 class ConversationResource(Resource):
     # Get all conversations by ID
     @api.marshal_list_with(conversation_model)
+    @jwt_required() # Protect this endpoint with JWT
     def get(self, account_id):
         conversation = Conversation.query.filter_by(account_id=account_id).all()
 
@@ -210,6 +227,7 @@ class APIKeysResource(Resource):
     # Create a new API key
     @api.marshal_with(api_key_model)
     @api.expect(api_key_model)
+    @jwt_required() # Protect this endpoint with JWT
     def post(self):
         data = request.get_json()
 
@@ -224,12 +242,14 @@ class APIKeysResource(Resource):
 class APIKeyResource(Resource):
     # Get an API key by ID
     @api.marshal_with(api_key_model)
+    @jwt_required() # Protect this endpoint with JWT
     def get(self, account_id):
         api_key = APIKey.query.get(account_id)
 
         return api_key
     
     # Delete an API key by ID
+    @jwt_required() # Protect this endpoint with JWT
     def delete(self, account_id):
         api_key = APIKey.query.get(account_id)
 
