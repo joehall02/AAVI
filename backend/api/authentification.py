@@ -5,18 +5,7 @@ from flask_jwt_extended import JWTManager, create_access_token, create_refresh_t
 from flask import Flask, request
 
 # Define a namespace for the authentication operations
-auth_ns = Namespace('auth', description='Authentication operations')
-
-
-# Define a model for the Account resource, this is used to serialize the data
-account_model = auth_ns.model('Account', {
-    'id': fields.Integer(),
-    'name': fields.String(),
-    'username': fields.String(),
-    'email': fields.String(),
-    'password': fields.String(),
-    'role': fields.String()    
-})   
+auth_ns = Namespace('Authentification', description='Authentication operations')
 
 # Define a model for the Signup resource, this is used to serialize the data
 signup_model = auth_ns.model('Signup', {

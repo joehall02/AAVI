@@ -4,7 +4,7 @@ from flask_jwt_extended import jwt_required
 from flask import Flask, request
 
 # Define a namespace for the conversation operations
-conversations_ns = Namespace('conversation', description='Conversation operations')
+conversations_ns = Namespace('Image Analysis', description='Image Analysis operations')
 
 # Define a model for the Conversation resource, this is used to serialize the data
 conversation_model = conversations_ns.model('Conversation', {

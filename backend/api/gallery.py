@@ -4,7 +4,7 @@ from flask_jwt_extended import jwt_required
 from flask import Flask, request
 
 # Define a namespace for the message operations
-messages_ns = Namespace('message', description='Message operations')
+messages_ns = Namespace('Gallery', description='Gallery operations')
 
 # Define a model for the Message resource, this is used to serialize the data
 message_model = messages_ns.model('Message', {

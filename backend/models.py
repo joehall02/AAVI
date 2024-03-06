@@ -11,10 +11,10 @@ class Account(db.Model):
     role = db.Column(db.String(13), nullable=False)
 
     # Relationship with API Key
-    api_key = db.relationship('APIKey', backref='account', uselist=False)
+    api_key = db.relationship('APIKey', backref='account', uselist=False, cascade="all, delete-orphan") # uselist=False to indicate that an account has only one API key. cascade="all, delete-orphan" to delete the API key when the account is deleted
 
     # Relationship with Conversation
-    conversations = db.relationship('Conversation', backref='account')
+    conversations = db.relationship('Conversation', backref='account', cascade="all, delete-orphan") # cascade="all, delete-orphan" to delete the conversations when the account is deleted
 
     def __repr__(self):
         return f"<Account(id={self.id}, username={self.username}, email={self.email})>"

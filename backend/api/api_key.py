@@ -4,7 +4,7 @@ from flask_jwt_extended import jwt_required
 from flask import Flask, request
 
 # Define a namespace for the message operations
-api_key_ns = Namespace('api key', description='API Key operations')
+api_key_ns = Namespace('Api Key', description='API Key operations')
 
 # Define a model for the Message resource, this is used to serialize the data
 api_key_model = api_key_ns.model('APIKey', {

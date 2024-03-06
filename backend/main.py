@@ -4,12 +4,12 @@ from models import Account, Message, Conversation, APIKey
 from exts import db
 from flask_migrate import Migrate
 from flask_jwt_extended import JWTManager
-from backend.api.authentification import auth_ns
-from backend.api.account import accounts_ns
+from api.authentification import auth_ns
+from api.account import account_ns
 from api.api_key import api_key_ns
-from backend.api.gallery import messages_ns
-from backend.api.image_analysis import conversations_ns
-from backend.api.admin_settings import admin_settings_ns
+from api.gallery import messages_ns
+from api.image_analysis import conversations_ns
+from api.admin_settings import admin_settings_ns
 
 
 def create_app(config):
@@ -33,7 +33,7 @@ def create_app(config):
 
     # Add the namespaces to the API
     api.add_namespace(auth_ns)
-    api.add_namespace(accounts_ns)
+    api.add_namespace(account_ns)
     api.add_namespace(api_key_ns)
     api.add_namespace(messages_ns)
     api.add_namespace(conversations_ns)
