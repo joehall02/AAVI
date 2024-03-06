@@ -38,7 +38,7 @@ class Account(db.Model):
 # APIKey model
 class APIKey(db.Model):
     id = db.Column(db.Integer(), primary_key=True)
-    api_key = db.Column(db.String(50), nullable=False, unique=True)
+    api_key = db.Column(db.String(50), nullable=False)
     
     # Foreign key to Account
     account_id = db.Column(db.Integer(), db.ForeignKey('account.id', name='fk_api_key_account'), nullable=False)

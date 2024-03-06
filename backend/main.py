@@ -1,6 +1,7 @@
 from flask import Flask
 from flask_restx import Api
 from models import Account, Message, Conversation, APIKey
+from config import DevConfig
 from exts import db
 from flask_migrate import Migrate
 from flask_jwt_extended import JWTManager
@@ -12,7 +13,7 @@ from api.image_analysis import conversations_ns
 from api.admin_settings import admin_settings_ns
 
 
-def create_app(config):
+def create_app(config=DevConfig):
     # Create Flask application instance
     app = Flask(__name__)
 
