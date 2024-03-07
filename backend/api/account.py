@@ -1,7 +1,7 @@
 from flask_restx import Namespace, Resource, fields
 from models import Account, APIKey
 from flask_jwt_extended import jwt_required
-from flask import Flask, request
+from flask import Flask, abort, request
 from werkzeug.security import generate_password_hash
 
 # Define namespace for the account operations
@@ -30,7 +30,7 @@ api_key_model = account_ns.model('API Key', {
 })
 
 # Define a resource for the '/accounts/<int:account_id>' endpoint
-@account_ns.route('/account/<int:account_id>', methods=['GET', 'PUT', 'POST', 'DELETE'])
+@account_ns.route('/<int:account_id>', methods=['GET', 'PUT', 'POST', 'DELETE'])
 class AccountResource(Resource):
     # Get an account by ID and return the account's username, password, and API key
     # Used to get account details in account page
@@ -39,6 +39,10 @@ class AccountResource(Resource):
     def get(self, account_id):
         db_account = Account.query.get(account_id)
 
+        if db_account is None:
+            abort(404, 'Account not found')
+
+            
         return db_account
     
     # Create a new API key for the account
@@ -77,12 +81,6 @@ class AccountResource(Resource):
     #@jwt_required() # Protect this endpoint with JWT
     def delete(self, account_id):
         account = Account.query.get(account_id)
-        
-        # Get the API key associated with the account
-        #api_key = account.api_key
-
-        # Get list of all conversations associated with the account
-
 
         account.delete()
         

@@ -8,7 +8,7 @@ from flask_jwt_extended import JWTManager
 from api.authentification import auth_ns
 from api.account import account_ns
 from api.api_key import api_key_ns
-from api.gallery import messages_ns
+from api.gallery import gallery_ns
 from api.image_analysis import conversations_ns
 from api.admin_settings import admin_settings_ns
 
@@ -36,7 +36,7 @@ def create_app(config=DevConfig):
     api.add_namespace(auth_ns)
     api.add_namespace(account_ns)
     api.add_namespace(api_key_ns)
-    api.add_namespace(messages_ns)
+    api.add_namespace(gallery_ns)
     api.add_namespace(conversations_ns)
     api.add_namespace(admin_settings_ns)
 
