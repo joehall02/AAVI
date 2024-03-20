@@ -10,6 +10,8 @@ flask-sqlalchemy = "*"
 flask-jwt-extended = "*"
 python-decouple = "*"
 flask-migrate = "*"
+openai = "*"
+requests = "*"
 
 [dev-packages]
 
