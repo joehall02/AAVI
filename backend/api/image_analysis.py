@@ -86,7 +86,8 @@ class UploadResource(Resource):
             file.save(image_path)
 
             # Create an OpenAI client using the user's API key
-            client = OpenAI(api_key="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")
+            #client = OpenAI(api_key="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")
+            client = OpenAI(api_key=user.api_key.api_key)
 
             # Get the base64 encoded image
             encoded_image = encode_image(image_path)
@@ -114,9 +115,28 @@ class UploadResource(Resource):
             
             # Get the response in text
             ai_response = response.choices[0].message.content.strip()
+
+            # Post the image summary to the OpenAI API to create a title for the conversation
+            response = client.chat.completions.create(
+                model="gpt-3.5-turbo",
+
+                messages=[
+                    {
+                        "role": "user",
+                        "content": [
+                            {"type": "text", "text": ("Create a 50 character, or less, title based on this image summary.")},
+                            {"type": "text", "text": (ai_response)}
+                        ]
+                    }
+                ]
+            )
+
+            # Get the response in text
+            title = response.choices[0].message.content.strip()
+
             
             # Create a new conversation with the image details
-            new_conversation = Conversation(title=filename, image_path=image_path, summary=ai_response, account_id=account_id)
+            new_conversation = Conversation(title=title, image_path=image_path, summary=ai_response, account_id=account_id)
 
             # Save the conversation to the database
             new_conversation.save()
