@@ -42,10 +42,62 @@ def generate_unique_filename(filename):
 def encode_image(image_path):
   with open(image_path, "rb") as image_file:
     return base64.b64encode(image_file.read()).decode('utf-8')
+  
+# Function to create open ai client
+def create_openai_client(user):
+  return OpenAI(api_key=user.api_key.api_key)
+
+# Function to analyse the image
+def analyse_image(client, encoded_image):
+    
+    # Create a payload to send to the OpenAI API
+    response = client.chat.completions.create(
+        model="gpt-4-vision-preview",
+        
+        messages=[
+            {
+                "role": "user",
+                "content": [
+                    {"type": "text", "text": ("What is in this image?")},
+                    {
+                        "type": "image_url",
+                        "image_url": {
+                            "url": f"data:image/jpeg;base64,{encoded_image}" # Base64 encoded image
+                        },
+                    },
+                ],
+            },
+        ],
+        max_tokens=100,                    
+    )
+
+    # Get the response in text
+    return response.choices[0].message.content.strip()
+
+# Function to generate a title for the conversation
+def generate_title(client, ai_response):
+
+    # Post the image summary to the OpenAI API to create a title for the conversation
+    response = client.chat.completions.create(
+        model="gpt-3.5-turbo",
+
+        messages=[
+            {
+                "role": "user",
+                "content": [
+                    {"type": "text", "text": ("Create a 50 character, or less, title based on this image summary.")},
+                    {"type": "text", "text": (ai_response)}
+                ]
+            }
+        ]
+    )
+
+    return response.choices[0].message.content.strip()
+
 
 # Define a resource for the '/upload' endpoint
 @image_analysis_ns.route('/upload/<int:account_id>', methods=['POST'])
-class UploadResource(Resource):
+class ImageAnalysisResource(Resource):
     
     #@jwt_required() # Protect this endpoint with JWT
     def post(self, account_id):
@@ -86,54 +138,16 @@ class UploadResource(Resource):
             file.save(image_path)
 
             # Create an OpenAI client using the user's API key
-            #client = OpenAI(api_key="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")
-            client = OpenAI(api_key=user.api_key.api_key)
+            client = create_openai_client(user)
 
             # Get the base64 encoded image
             encoded_image = encode_image(image_path)
 
-            # Create a payload to send to the OpenAI API
-            response = client.chat.completions.create(
-                model="gpt-4-vision-preview",
-                
-                messages=[
-                    {
-                        "role": "user",
-                        "content": [
-                            {"type": "text", "text": ("What is in this image?")},
-                            {
-                                "type": "image_url",
-                                "image_url": {
-                                    "url": f"data:image/jpeg;base64,{encoded_image}" # Base64 encoded image
-                                },
-                            },
-                        ],
-                    },
-                ],
-                max_tokens=100,                    
-            )
-            
-            # Get the response in text
-            ai_response = response.choices[0].message.content.strip()
+            # Analyse the image
+            ai_response = analyse_image(client, encoded_image)
 
             # Post the image summary to the OpenAI API to create a title for the conversation
-            response = client.chat.completions.create(
-                model="gpt-3.5-turbo",
-
-                messages=[
-                    {
-                        "role": "user",
-                        "content": [
-                            {"type": "text", "text": ("Create a 50 character, or less, title based on this image summary.")},
-                            {"type": "text", "text": (ai_response)}
-                        ]
-                    }
-                ]
-            )
-
-            # Get the response in text
-            title = response.choices[0].message.content.strip()
-
+            title = generate_title(client, ai_response)
             
             # Create a new conversation with the image details
             new_conversation = Conversation(title=title, image_path=image_path, summary=ai_response, account_id=account_id)
@@ -141,11 +155,27 @@ class UploadResource(Resource):
             # Save the conversation to the database
             new_conversation.save()
 
-
-
             return {'message': 'Image uploaded and analyzed successfully', 'conversation': f'{new_conversation.summary}'}, 201
         
 
+# Define a resource for the '/scan_result' endpoint
+@image_analysis_ns.route('/scan_result/<int:account_id>', methods=['GET'])
+class ImageAnalysisResource(Resource):
+    #@jwt_required() # Protect this endpoint with JWT
+    @image_analysis_ns.marshal_with(conversation_model)
+    def get(self, account_id):
+        
+        # Get account from database
+        user = Account.query.get(account_id)
+
+        # Get the latest conversation for the account
+        conversation = Conversation.query.filter_by(account_id=account_id).order_by(Conversation.id.desc()).first()
+
+        # If there is no conversation, return an error
+        if conversation is None:
+            return {'message': 'No conversations found'}, 404
+        
+        return conversation
 
         
         
