@@ -82,13 +82,14 @@ class Conversation(db.Model):
 class Message(db.Model):
     id = db.Column(db.Integer(), primary_key=True)
     content = db.Column(db.String(300), nullable=False)
+    type = db.Column(db.String(10), nullable=False)
     message_number = db.Column(db.Integer(), nullable=False)
 
     # Foreign key to Conversation
     conversation_id = db.Column(db.Integer(), db.ForeignKey('conversation.id', name='fk_message_conversation'), nullable=False)
 
     def __repr__(self):
-        return f"<Message(id={self.id}, content={self.content}, message_number={self.message_number}, conversation_id={self.conversation_id})>"
+        return f"<Message(id={self.id}, content={self.content}, message_number={self.message_number}, type={self.type} conversation_id={self.conversation_id})>"
     
     # Method to save the message to the database
     def save(self):

@@ -25,8 +25,9 @@ conversation_model = image_analysis_ns.model('Conversation', {
 # Define a model for the Message resource, this is used to serialize the data
 message_model = image_analysis_ns.model('Message', {
     'id': fields.Integer(),
-    'contents': fields.String(),
-    'message_number': fields.Date(),
+    'content': fields.String(),
+    'message_number': fields.Integer(),
+    'type': fields.String(),
     'conversation_id': fields.Integer()
 })
 
@@ -201,25 +202,93 @@ class ImageAnalysisResource(Resource):
 
         
 # Define a resource for the '/message' endpoint
-@image_analysis_ns.route('message/<int:conversation_id>', methods=['POST, GET'])
+@image_analysis_ns.route('/message/<int:conversation_id>', methods=['POST', 'GET'])
 class ImageAnalysisResource(Resource):
     #@jwt_required() # Protect this endpoint with JWT
+    @image_analysis_ns.marshal_with(message_model)
     def post(self, conversation_id):
         data = request.get_json()
 
         last_message_number = get_last_message_number(conversation_id)
 
-        # Create a new message with the contents, message number and conversation ID
-        new_message = Message(contents=data.get('contents'), message_number=last_message_number, conversation_id=conversation_id) 
+        # Create a new message with the content, message number and conversation ID
+        new_message = Message(content=data.get('content'), message_number=last_message_number, type='User', conversation_id=conversation_id) 
 
         # Save the message to the database
         new_message.save()        
 
-        # 
+        # Get the conversation from the database
+        conversation = Conversation.query.get(conversation_id)
 
-        return {'message': 'Message added successfully'}, 201
+        # Get the encoded image using the image path
+        encoded_image = encode_image(conversation.image_path)
+
+        # Create an OpenAI client using the user's API key
+        client = create_openai_client(conversation.account)
+
+        # Get all the messages for the conversation
+        messages = Message.query.filter_by(conversation_id=conversation_id).order_by(Message.message_number).all()
+
+        # Create a payload to send to the OpenAI API with the encoded image
+        messages_request = [
+            {
+                "role": "user",
+                "content": [
+                    {
+                        "type": "image_url", 
+                        "image_url": {
+                            "url": f"data:image/jpeg;base64,{encoded_image}"
+                        }
+                    }
+                ]
+            }
+        ]
+
+        # If message.type == 'User' it is a user message, if message.type == 'AI' it is an AI message
+        # Add all the messages in the conversation, in the correct format to the payload 
+        for message in messages:
+            if message.type == 'User':
+                messages_request.append({
+                    "role": "user",
+                    "content": [
+                        {"type": "text", "text": message.content}
+                    ]
+                })
+            else:
+                messages_request.append({
+                    "role": "assistant",
+                    "content": [
+                        {"type": "text", "text": message.content}
+                    ]
+                })
+
+        # Create a payload to send to the OpenAI API
+        response = client.chat.completions.create(
+            model="gpt-4-vision-preview",
+            messages=messages_request,
+            max_tokens=100,                    
+        )
+
+        # Get the response in text
+        ai_response = response.choices[0].message.content.strip()
+
+        # Create a new message with the AI response, message number and conversation ID
+        ai_new_message = Message(content=ai_response, message_number=last_message_number + 1, type='AI', conversation_id=conversation_id)
+
+        # Save the message to the database
+        ai_new_message.save()
+
+        return new_message, 201
 
     @image_analysis_ns.marshal_with(message_model)
     def get(self, conversation_id):
-        pass
+        
+        # Get the latest AI message for the conversation
+        ai_message = Message.query.filter_by(conversation_id=conversation_id, type='AI').order_by(Message.id.desc()).first()
+
+        # If there is no message, return an error
+        if ai_message is None:
+            return {'message': 'No messages found'}, 404
+
+        return ai_message 
         
