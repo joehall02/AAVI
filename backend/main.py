@@ -23,7 +23,7 @@ def create_app(config=DevConfig):
     app.config['UPLOAD_FOLDER'] = '../Images'
 
     # Set the allowed file extensions for uploaded files
-    app.config['ALLOWED_EXTENSIONS'] = {'png', 'jpg', 'jpeg'}
+    app.config['ALLOWED_EXTENSIONS'] = {'png', 'jpg', 'jpeg', 'webp'}
 
     # Initialize the database
     db.init_app(app)

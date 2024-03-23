@@ -3,7 +3,7 @@ import requests
 import base64
 
 from flask_restx import Namespace, Resource, fields
-from models import Conversation, Account
+from models import Conversation, Account, Message
 from flask_jwt_extended import jwt_required
 from flask import Flask, request, current_app
 from werkzeug.utils import secure_filename
@@ -20,6 +20,14 @@ conversation_model = image_analysis_ns.model('Conversation', {
     'date_created': fields.Date(),
     'summary': fields.String(),
     'account_id': fields.Integer()
+})
+
+# Define a model for the Message resource, this is used to serialize the data
+message_model = image_analysis_ns.model('Message', {
+    'id': fields.Integer(),
+    'contents': fields.String(),
+    'message_number': fields.Date(),
+    'conversation_id': fields.Integer()
 })
 
 # Function to check if the file type is allowed
@@ -94,6 +102,20 @@ def generate_title(client, ai_response):
 
     return response.choices[0].message.content.strip()
 
+# Function to get the last message number
+def get_last_message_number(conversation_id):
+    # Get the last message number for the conversation
+    last_message = Message.query.filter_by(conversation_id=conversation_id).order_by(Message.message_number.desc()).first()
+
+    # If there is no message, set the message number to 1
+    if last_message is None:
+        message_number = 1
+        
+    # If there is a message, increment the message number by 1
+    else:
+        message_number = last_message.message_number + 1
+
+    return message_number
 
 # Define a resource for the '/upload' endpoint
 @image_analysis_ns.route('/upload/<int:account_id>', methods=['POST'])
@@ -131,7 +153,7 @@ class ImageAnalysisResource(Resource):
             # Generate a unique filename to avoid overwriting existing images
             unique_filename = generate_unique_filename(filename)
             
-            # image path
+            # image path 
             image_path = os.path.join(current_app.config['UPLOAD_FOLDER'], unique_filename)
 
             # Save the file to the upload folder
@@ -178,4 +200,26 @@ class ImageAnalysisResource(Resource):
         return conversation
 
         
+# Define a resource for the '/message' endpoint
+@image_analysis_ns.route('message/<int:conversation_id>', methods=['POST, GET'])
+class ImageAnalysisResource(Resource):
+    #@jwt_required() # Protect this endpoint with JWT
+    def post(self, conversation_id):
+        data = request.get_json()
+
+        last_message_number = get_last_message_number(conversation_id)
+
+        # Create a new message with the contents, message number and conversation ID
+        new_message = Message(contents=data.get('contents'), message_number=last_message_number, conversation_id=conversation_id) 
+
+        # Save the message to the database
+        new_message.save()        
+
+        # 
+
+        return {'message': 'Message added successfully'}, 201
+
+    @image_analysis_ns.marshal_with(message_model)
+    def get(self, conversation_id):
+        pass
         
