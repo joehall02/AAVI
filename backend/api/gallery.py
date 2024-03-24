@@ -59,3 +59,13 @@ class ConversationResource(Resource):
 
 
         return conversation
+    
+
+@gallery_ns.route('/conversation/hello', methods=['GET'])
+class ConversationResource(Resource):
+
+    #@jwt_required() # Protect this endpoint with JWT
+    def get(self):
+
+
+        return {'message': 'Hello World!'}

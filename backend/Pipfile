@@ -12,6 +12,7 @@ python-decouple = "*"
 flask-migrate = "*"
 openai = "*"
 requests = "*"
+flask-cors = "*"
 
 [dev-packages]
 
