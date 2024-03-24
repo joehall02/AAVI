@@ -1,7 +1,7 @@
 from flask_restx import Namespace, Resource, fields
 from models import Account
 from werkzeug.security import generate_password_hash, check_password_hash
-from flask_jwt_extended import JWTManager, create_access_token, create_refresh_token, jwt_required
+from flask_jwt_extended import (JWTManager, create_access_token, create_refresh_token, jwt_required, get_jwt_identity)
 from flask import Flask, request
 
 # Define a namespace for the authentication operations
@@ -66,3 +66,16 @@ class LoginResource(Resource):
         else:
             return {'message': 'Invalid credentials'}, 401
  
+# Define a resource for the '/refresh' endpoint
+@auth_ns.route('/refresh', methods=['POST'])
+class RefreshResource(Resource):
+    # Require a refresh token to access this endpoint
+    @jwt_required(refresh=True) 
+    def post(self):
+        # Get the current user from the refresh token
+        current_user = get_jwt_identity()
+
+        # Create a new access token
+        new_access_token = create_access_token(identity=current_user)
+
+        return {'access_token': new_access_token}, 200
