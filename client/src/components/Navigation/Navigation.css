@@ -14,7 +14,7 @@
     .custom-underline::after {
         content: "";
         display: block;
-        width: 25%; /* adjust as needed */
+        width: 25%;
         height: 1px;
         background-color: #fff;
         margin: 0 0 0 auto;

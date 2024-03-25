@@ -5,7 +5,7 @@ import ReactDOM from "react-dom";
 import Navbar from "./components/Navigation/Navigation";
 import SignUpPage from "./components/SignUp";
 import LoginPage from "./components/Login";
-import HomePage from "./components/Home";
+import HomePage from "./components/Home/Home";
 
 import { Container } from "react-bootstrap";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
@@ -15,7 +15,7 @@ const App = () => {
   return (
     <Router>
       <Navbar />
-      <Container>
+      <Container className="vh-100 mt-5">
         <Routes>
           <Route path="/signup" element={<SignUpPage />} />
           <Route path="/login" element={<LoginPage />} />
