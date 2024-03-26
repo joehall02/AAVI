@@ -2,10 +2,38 @@ import React, { useState } from "react";
 import "./Home.css";
 
 const HomePage = () => {
+  // defining a state variable fileName and a function setFileName to store the name of the file uploaded by the user
   const [fileName, setFileName] = useState("");
+  const [file, setFile] = useState(null);
 
+  // function to handle the file change event
   const handleFileChange = (e) => {
-    setFileName(e.target.files[0].name);
+    if (!e.target.files.length) return; // if no files are selected, return
+    setFileName(e.target.files[0].name); // set the file name to the name of the file uploaded by the user
+    setFile(e.target.files[0]); // Set the file to the file uploaded by the user
+  };
+
+  const handleButtonClick = async () => {
+    if (!file) return; // If no file is selected, return
+
+    const formData = new FormData(); // Create a new FormData object
+    formData.append("photo", file); // Append the file to the FormData object
+
+    // Send a POST request to the server with the file
+    const response = await fetch("/Image Analysis/upload/2", {
+      method: "POST",
+      body: formData,
+    });
+
+    // If the response is not ok, throw an error
+    if (!response.ok) {
+      const message = `An error has occured: ${response.status}`;
+      throw new Error(message);
+    }
+
+    // If response is okay, get the json data
+    const data = await response.json();
+    console.log(data);
   };
 
   return (
@@ -23,7 +51,9 @@ const HomePage = () => {
 
       <div className="d-flex justify-content-center">
         <div className="col-12 col-md-6">
-          <button className="btn btn-lg btn-primary mt-3 fw-bold w-100">Results</button>
+          <button className="btn btn-lg btn-primary mt-3 fw-bold w-100" onClick={handleButtonClick}>
+            Results
+          </button>
         </div>
       </div>
     </div>

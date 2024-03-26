@@ -10,6 +10,7 @@ from api.account import account_ns
 from api.gallery import gallery_ns
 from api.image_analysis import image_analysis_ns
 from api.admin_settings import admin_settings_ns
+from api.images import images_ns
 from flask_cors import CORS
 
 
@@ -47,6 +48,7 @@ def create_app(config=DevConfig):
     api.add_namespace(gallery_ns)
     api.add_namespace(image_analysis_ns)
     api.add_namespace(admin_settings_ns)
+    api.add_namespace(images_ns)
 
 
     @app.shell_context_processor
