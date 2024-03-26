@@ -1,0 +1,22 @@
+.chatbot-background {
+    background-color: #1E1E1E;
+    height: 700px;
+    border-radius: 5px;
+}
+
+::-webkit-scrollbar {
+    width: 8px; /* Width of the vertical scrollbar */
+    height: 8px; /* Height of the horizontal scrollbar */
+  }
+  
+::-webkit-scrollbar-track {
+background: #f1f1f1; /* Color of the track */
+}
+
+::-webkit-scrollbar-thumb {
+background: #888; /* Color of the scroll thumb */
+}
+
+::-webkit-scrollbar-thumb:hover {
+background: #555; /* Color of the scroll thumb on hover */
+}

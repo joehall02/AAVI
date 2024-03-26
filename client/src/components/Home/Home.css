@@ -1,3 +1,5 @@
+
+/* Custom image input box */
 .image-input {
     background-color: grey;
     border: 1px solid black;
@@ -7,8 +9,27 @@
     margin: auto;
     cursor: pointer;
 }
+/* Sets size to 50% when above the medium breakpoint */
 @media (min-width: 768px) {
     .image-input {
         width: 50%;
     }
 }
+
+/* Loading overlay for when image has been uploaded */
+.loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: white;
+    font-size: 2em;
+    z-index: 1000;
+}
+
+

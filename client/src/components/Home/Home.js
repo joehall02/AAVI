@@ -1,10 +1,11 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import "./Home.css";
 
 const HomePage = () => {
-  // defining a state variable fileName and a function setFileName to store the name of the file uploaded by the user
-  const [fileName, setFileName] = useState("");
-  const [file, setFile] = useState(null);
+  const [isLoading, setIsLoading] = useState(false); // defining a state variable isLoading and a function setIsLoading to store the loading state of the page
+  const [fileName, setFileName] = useState(""); // defining a state variable fileName and a function setFileName to store the name of the file uploaded by the user
+  const [file, setFile] = useState(null); // defining a state variable file and a function setFile to store the file uploaded by the user
 
   // function to handle the file change event
   const handleFileChange = (e) => {
@@ -13,8 +14,14 @@ const HomePage = () => {
     setFile(e.target.files[0]); // Set the file to the file uploaded by the user
   };
 
+  // Get the navigate object from the useNavigate hook
+  const navigate = useNavigate();
+
+  // function to handle the button click event
   const handleButtonClick = async () => {
     if (!file) return; // If no file is selected, return
+
+    setIsLoading(true); // Set the loading state to true
 
     const formData = new FormData(); // Create a new FormData object
     formData.append("photo", file); // Append the file to the FormData object
@@ -25,7 +32,9 @@ const HomePage = () => {
       body: formData,
     });
 
-    // If the response is not ok, throw an error
+    setIsLoading(false); // Set the loading state to false
+
+    // If the response is not received, throw an error
     if (!response.ok) {
       const message = `An error has occured: ${response.status}`;
       throw new Error(message);
@@ -34,10 +43,14 @@ const HomePage = () => {
     // If response is okay, get the json data
     const data = await response.json();
     console.log(data);
+
+    // Navigate to the scan results
+    navigate("/scan_results");
   };
 
   return (
     <div>
+      {isLoading && <div className="loading-overlay">Loading...</div>}
       <div className="d-flex justify-content-center">
         <h1 className="fw-bold">Home</h1>
       </div>
