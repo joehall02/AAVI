@@ -2,6 +2,9 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./Home.css";
 
+// Create a variable that contains an account id
+const accountId = 2;
+
 const HomePage = () => {
   const [isLoading, setIsLoading] = useState(false); // defining a state variable isLoading and a function setIsLoading to store the loading state of the page
   const [fileName, setFileName] = useState(""); // defining a state variable fileName and a function setFileName to store the name of the file uploaded by the user
@@ -27,7 +30,7 @@ const HomePage = () => {
     formData.append("photo", file); // Append the file to the FormData object
 
     // Send a POST request to the server with the file
-    const response = await fetch("/Image Analysis/upload/2", {
+    const response = await fetch(`/Image Analysis/upload/${accountId}`, {
       method: "POST",
       body: formData,
     });
@@ -44,8 +47,8 @@ const HomePage = () => {
     const data = await response.json();
     console.log(data);
 
-    // Navigate to the scan results
-    navigate("/scan_results");
+    // Navigate to the scan results, passing the account id as a parameter
+    navigate("/scan_results", { state: { accountId } });
   };
 
   return (

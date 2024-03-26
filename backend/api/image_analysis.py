@@ -83,6 +83,51 @@ def analyse_image(client, encoded_image):
     # Get the response in text
     return response.choices[0].message.content.strip()
 
+# Function to analyse the message
+def analyse_message(client, encoded_image, messages):
+
+     # Create a payload to send to the OpenAI API with the encoded image
+    messages_request = [
+        {
+            "role": "user",
+            "content": [
+                {
+                    "type": "image_url", 
+                    "image_url": {
+                        "url": f"data:image/jpeg;base64,{encoded_image}"
+                    }
+                }
+            ]
+        }
+    ]
+
+    # If message.type == 'User' it is a user message, if message.type == 'AI' it is an AI message
+    # Add all the messages in the conversation, in the correct format to the payload 
+    for message in messages:
+        if message.type == 'User':
+            messages_request.append({
+                "role": "user",
+                "content": [
+                    {"type": "text", "text": message.content}
+                ]
+            })
+        else:
+            messages_request.append({
+                "role": "assistant",
+                "content": [
+                    {"type": "text", "text": message.content}
+                ]
+            })
+
+    # Create a payload to send to the OpenAI API
+    response = client.chat.completions.create(
+        model="gpt-4-vision-preview",
+        messages=messages_request,
+        max_tokens=100,                    
+    )      
+
+    return response.choices[0].message.content.strip()  
+
 # Function to generate a title for the conversation
 def generate_title(client, ai_response):
 
@@ -94,7 +139,7 @@ def generate_title(client, ai_response):
             {
                 "role": "user",
                 "content": [
-                    {"type": "text", "text": ("Create a 50 character, or less, title based on this image summary.")},
+                    {"type": "text", "text": ("Create a 50 character, or less, title based on this image summary. Do not include quotation marks in your response.")},
                     {"type": "text", "text": (ai_response)}
                 ]
             }
@@ -172,6 +217,9 @@ class ImageAnalysisResource(Resource):
             # Post the image summary to the OpenAI API to create a title for the conversation
             title = generate_title(client, ai_response)
             
+            # Remove any quotation marks from the title
+            title = title.replace('"', '')
+
             # Create a new conversation with the image details
             new_conversation = Conversation(title=title, image_path=image_path, summary=ai_response, account_id=account_id)
 
@@ -229,48 +277,8 @@ class ImageAnalysisResource(Resource):
         # Get all the messages for the conversation
         messages = Message.query.filter_by(conversation_id=conversation_id).order_by(Message.message_number).all()
 
-        # Create a payload to send to the OpenAI API with the encoded image
-        messages_request = [
-            {
-                "role": "user",
-                "content": [
-                    {
-                        "type": "image_url", 
-                        "image_url": {
-                            "url": f"data:image/jpeg;base64,{encoded_image}"
-                        }
-                    }
-                ]
-            }
-        ]
-
-        # If message.type == 'User' it is a user message, if message.type == 'AI' it is an AI message
-        # Add all the messages in the conversation, in the correct format to the payload 
-        for message in messages:
-            if message.type == 'User':
-                messages_request.append({
-                    "role": "user",
-                    "content": [
-                        {"type": "text", "text": message.content}
-                    ]
-                })
-            else:
-                messages_request.append({
-                    "role": "assistant",
-                    "content": [
-                        {"type": "text", "text": message.content}
-                    ]
-                })
-
-        # Create a payload to send to the OpenAI API
-        response = client.chat.completions.create(
-            model="gpt-4-vision-preview",
-            messages=messages_request,
-            max_tokens=100,                    
-        )
-
-        # Get the response in text
-        ai_response = response.choices[0].message.content.strip()
+        # Analyse the message
+        ai_response = analyse_message(client, encoded_image, messages)
 
         # Create a new message with the AI response, message number and conversation ID
         ai_new_message = Message(content=ai_response, message_number=last_message_number + 1, type='AI', conversation_id=conversation_id)
