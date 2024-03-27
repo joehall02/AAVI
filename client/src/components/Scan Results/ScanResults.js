@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import Message from "../Message/Message";
 import "./ScanResults.css";
+import "../../styles/global.css";
 
 const ScanResults = () => {
   const [conversation, setConversation] = useState(null); // State to store the conversation data received from the server
@@ -18,7 +19,7 @@ const ScanResults = () => {
       // Send a GET request to the server to get the scan results
       const response = await fetch(`/Image Analysis/scan_result/${accountId}`);
 
-      // If the response is received, throw an error
+      // If the response is not received, throw an error
       if (!response.ok) {
         const message = `An error has occured: ${response.status}`;
         throw new Error(message);
@@ -106,7 +107,7 @@ const ScanResults = () => {
           {/* Chatbot container */}
           <div className="d-flex justify-content-center flex-column col-12 col-lg-10">
             {/* Chatbot messages */}
-            <div className="d-flex flex-column col-11 col-lg-12 overflow-auto mx-auto custom-scrollbar" style={{ maxHeight: "620px" }}>
+            <div className="d-flex flex-column col-11 col-lg-12 overflow-auto mx-auto" style={{ maxHeight: "620px" }}>
               {/* Conversation title */}
               <div className="d-flex flex-column py-4 col-12">
                 <h4 className="text-white fw-bold mx-auto" style={{ whiteSpace: "nowrap" }}>

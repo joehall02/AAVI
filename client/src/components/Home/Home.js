@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./Home.css";
+import "../../styles/global.css";
 
 // Create a variable that contains an account id
 const accountId = 2;
