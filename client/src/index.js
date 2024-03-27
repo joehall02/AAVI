@@ -2,6 +2,7 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap-icons/font/bootstrap-icons.css";
 import React from "react";
 import ReactDOM from "react-dom";
+
 import Navbar from "./components/Navigation/Navigation";
 import SignUpPage from "./components/SignUp";
 import LoginPage from "./components/Login";
@@ -9,6 +10,7 @@ import HomePage from "./components/Home/Home";
 import ScanResults from "./components/Scan Results/ScanResults";
 import GalleryPage from "./components/Gallery/Gallery";
 import ConversationPage from "./components/Conversation/Conversation";
+import AccountPage from "./components/Account/Account";
 
 import { Container } from "react-bootstrap";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
@@ -25,6 +27,7 @@ const App = () => {
           <Route path="/scan_results" element={<ScanResults />} />
           <Route path="/gallery" element={<GalleryPage />} />
           <Route path="/conversation" element={<ConversationPage />} />
+          <Route path="/account" element={<AccountPage />} />
           <Route path="/" element={<HomePage />} />
         </Routes>
       </Container>

@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import "./Gallery.css";
 import "../../styles/global.css";
 import GalleryImage from "../GalleryImage/GalleryImage";
 
