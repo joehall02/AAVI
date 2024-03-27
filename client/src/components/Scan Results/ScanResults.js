@@ -88,7 +88,7 @@ const ScanResults = () => {
         <h1 className="fw-bold">Scan Results</h1>
       </div>
 
-      {/* Display the scan results if data is available */}
+      {/* Display the scanned image if data is available */}
       <div className="d-flex justify-content-center mt-3">
         <div className="col-12 col-lg-6 text-center">
           <div className="w-100">
@@ -109,10 +109,8 @@ const ScanResults = () => {
             {/* Chatbot messages */}
             <div className="d-flex flex-column col-11 col-lg-12 overflow-auto mx-auto" style={{ maxHeight: "620px" }}>
               {/* Conversation title */}
-              <div className="d-flex flex-column py-4 col-12">
-                <h4 className="text-white fw-bold mx-auto" style={{ whiteSpace: "nowrap" }}>
-                  {conversation.title}
-                </h4>
+              <div className="d-flex text-center flex-column py-4 col-12">
+                <h5 className="text-white fw-bold mx-auto">{conversation.title}</h5>
               </div>
               {/* Maps all the messages to an array of message components and displays them */}
               {messages.map((message, index) => (

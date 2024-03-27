@@ -18,7 +18,8 @@ message_model = gallery_ns.model('Message', {
     'id': fields.Integer(),
     'content': fields.String(),
     'message_number': fields.Integer(),
-    'conversation_id': fields.Integer()
+    'conversation_id': fields.Integer(),
+    'type': fields.String()
 })
 
 # Define a model for the Conversation resource, this is used to serialize the data
