@@ -1,7 +1,7 @@
 from flask_restx import Namespace, Resource, fields
 from models import Account, APIKey
 from flask_jwt_extended import jwt_required
-from flask import Flask, abort, request
+from flask import Flask, abort, jsonify, request
 from werkzeug.security import generate_password_hash
 
 # Define namespace for the account operations
@@ -29,6 +29,7 @@ api_key_model = account_ns.model('API Key', {
     'api_key': fields.String(),
     'account_id': fields.Integer()
 })
+
 
 # Define a resource for the '<int:account_id>' endpoint
 @account_ns.route('/<int:account_id>', methods=['GET', 'POST', 'DELETE'])
@@ -82,17 +83,27 @@ class AccountResource(Resource):
 class AccountResource(Resource):
     
     # Update account details (Username) by ID
-    @account_ns.marshal_with(account_model)
     @account_ns.expect(account_model)
     def put(self, account_id):
         db_account = Account.query.get(account_id)
+        
         data = request.get_json()
+
+        # Check if the account with the username already exists
+        username = data.get('username')
+
+        db_user = Account.query.filter_by(username=username).first()
+
+        if db_user is not None:
+            return {'message': f'Username {username} already exists'}, 400
+
         
         db_account.username = data.get('username')
         
         db_account.save()
         
         return {'message': 'Username updated successfully'}, 200
+
 
         
 # Define a resource for the '/name/<int:account_id>' endpoint
