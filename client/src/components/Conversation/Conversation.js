@@ -64,10 +64,14 @@ const Conversation = () => {
                 <strong>Summary:</strong> {conversation.summary}
               </p>
             </div>
-            {/* Chatbot Title */}
-            <div className="d-flex text-center flex-column py-4 col-12">
-              <h1 className="fw-bold mx-auto">Chatbot</h1>
-            </div>
+
+            {/* Chatbot title */}
+            {/* If there are no messages, dont show */}
+            {conversation.messages && conversation.messages.length > 0 && (
+              <div className="d-flex text-center flex-column py-4 col-12">
+                <h1 className="fw-bold mx-auto">Chatbot</h1>
+              </div>
+            )}
 
             {/* Chatbot container */}
             <div className="d-flex flex-column col-11 overflow-auto mx-auto" style={{ maxHeight: "620px" }}>

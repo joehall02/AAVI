@@ -11,6 +11,8 @@ const HomePage = () => {
   const [fileName, setFileName] = useState(""); // defining a state variable fileName and a function setFileName to store the name of the file uploaded by the user
   const [file, setFile] = useState(null); // defining a state variable file and a function setFile to store the file uploaded by the user
 
+  const [errorMessage, setErrorMessage] = useState(""); // defining a state variable errorMessage and a function setErrorMessage to store the error message if an error occurs
+
   // function to handle the file change event
   const handleFileChange = (e) => {
     if (!e.target.files.length) return; // if no files are selected, return
@@ -30,26 +32,27 @@ const HomePage = () => {
     const formData = new FormData(); // Create a new FormData object
     formData.append("photo", file); // Append the file to the FormData object
 
-    // Send a POST request to the server with the file
-    const response = await fetch(`/Image Analysis/upload/${accountId}`, {
-      method: "POST",
-      body: formData,
-    });
+    try {
+      // Send a POST request to the server with the file
+      const response = await fetch(`/Image Analysis/upload/${accountId}`, {
+        method: "POST",
+        body: formData,
+      });
 
-    setIsLoading(false); // Set the loading state to false
+      // If the response is not received, throw an error
+      if (!response.ok) {
+        const data = await response.json(); // Get the json data from the response
+        throw new Error(data.message);
+      }
 
-    // If the response is not received, throw an error
-    if (!response.ok) {
-      const message = `An error has occured: ${response.status}`;
-      throw new Error(message);
+      setIsLoading(false); // Set the loading state to false
+
+      // Navigate to the scan results, passing the account id as a parameter
+      navigate("/scan_results", { state: { accountId } });
+    } catch (error) {
+      setIsLoading(false); // Set the loading state to false
+      setErrorMessage(error.message); // Set the error message
     }
-
-    // If response is okay, get the json data
-    const data = await response.json();
-    console.log(data);
-
-    // Navigate to the scan results, passing the account id as a parameter
-    navigate("/scan_results", { state: { accountId } });
   };
 
   return (
@@ -73,6 +76,7 @@ const HomePage = () => {
           </button>
         </div>
       </div>
+      <div className="d-flex justify-content-center">{errorMessage && <p className="text-danger">{errorMessage}</p>}</div>
     </div>
   );
 };

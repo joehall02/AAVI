@@ -6,6 +6,7 @@ from flask_restx import Namespace, Resource, fields
 from models import Conversation, Account, Message
 from flask_jwt_extended import jwt_required
 from flask import Flask, request, current_app
+from os import remove
 from werkzeug.utils import secure_filename
 from openai import OpenAI
 
@@ -205,28 +206,34 @@ class ImageAnalysisResource(Resource):
             # Save the file to the upload folder
             file.save(image_path)
 
-            # Create an OpenAI client using the user's API key
-            client = create_openai_client(user)
+            # Try catch block to handle invalid API key
+            try:
+                # Create an OpenAI client using the user's API key
+                client = create_openai_client(user)
+                
+                # Get the base64 encoded image
+                encoded_image = encode_image(image_path)
 
-            # Get the base64 encoded image
-            encoded_image = encode_image(image_path)
+                # Analyse the image
+                ai_response = analyse_image(client, encoded_image)
 
-            # Analyse the image
-            ai_response = analyse_image(client, encoded_image)
+                # Post the image summary to the OpenAI API to create a title for the conversation
+                title = generate_title(client, ai_response)
+                
+                # Remove any quotation marks from the title
+                title = title.replace('"', '')
 
-            # Post the image summary to the OpenAI API to create a title for the conversation
-            title = generate_title(client, ai_response)
-            
-            # Remove any quotation marks from the title
-            title = title.replace('"', '')
+                # Create a new conversation with the image details
+                new_conversation = Conversation(title=title, image_path=image_path, summary=ai_response, account_id=account_id)
 
-            # Create a new conversation with the image details
-            new_conversation = Conversation(title=title, image_path=image_path, summary=ai_response, account_id=account_id)
+                # Save the conversation to the database
+                new_conversation.save()
 
-            # Save the conversation to the database
-            new_conversation.save()
+                return {'message': 'Image uploaded and analyzed successfully', 'conversation': f'{new_conversation.summary}'}, 201
+            except:
+                remove(image_path)
+                return {'message': 'Invalid API key'}, 400
 
-            return {'message': 'Image uploaded and analyzed successfully', 'conversation': f'{new_conversation.summary}'}, 201
         
 
 # Define a resource for the '/scan_result' endpoint

@@ -27,17 +27,30 @@ const AccountPage = () => {
   const [errorMessage, setErrorMessage] = useState("");
 
   // Functions to handle the edit button click events
+  // Each function sets their respective isEditing state to true and the other isEditing states to false
   const handleEditUsername = () => {
     setIsEditingUsername(true);
+    setIsEditingName(false);
+    setIsEditingPassword(false);
+    setIsEditingOpenAIKey(false);
   };
   const handleEditName = () => {
     setIsEditingName(true);
+    setIsEditingUsername(false);
+    setIsEditingPassword(false);
+    setIsEditingOpenAIKey(false);
   };
   const handleEditPassword = () => {
     setIsEditingPassword(true);
+    setIsEditingUsername(false);
+    setIsEditingName(false);
+    setIsEditingOpenAIKey(false);
   };
   const handleEditOpenAIKey = () => {
     setIsEditingOpenAIKey(true);
+    setIsEditingUsername(false);
+    setIsEditingName(false);
+    setIsEditingPassword(false);
   };
 
   // Function to handle the save button click events
@@ -54,7 +67,6 @@ const AccountPage = () => {
 
       if (!response.ok) {
         const data = await response.json();
-        setErrorMessage(data.message);
         throw new Error(data.message);
       }
 
@@ -66,64 +78,77 @@ const AccountPage = () => {
     }
   };
   const handleSaveName = async () => {
-    // Send a PUT request to the server to update the name
-    const response = await fetch(`/Account/name/${accountId}`, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ name: newName }),
-    });
+    try {
+      // Send a PUT request to the server to update the name
+      const response = await fetch(`/Account/name/${accountId}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ name: newName }),
+      });
 
-    if (!response.ok) {
-      const data = await response.json();
-      setErrorMessage(data.message);
-      throw new Error(data.message);
+      if (!response.ok) {
+        const data = await response.json();
+        setErrorMessage(data.message);
+        throw new Error(data.message);
+      }
+
+      setIsEditingName(false);
+      setUpdateCount(updateCount + 1);
+      setErrorMessage("");
+    } catch (error) {
+      setErrorMessage(error.message);
     }
-
-    setIsEditingName(false);
-    setUpdateCount(updateCount + 1);
-    setErrorMessage("");
   };
   const handleSavePassword = async () => {
-    // Send a PUT request to the server to update the password
-    const response = await fetch(`/Account/password/${accountId}`, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ password: newPassword }),
-    });
+    try {
+      // Send a PUT request to the server to update the password
+      const response = await fetch(`/Account/password/${accountId}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ password: newPassword }),
+      });
 
-    if (!response.ok) {
-      const data = await response.json();
-      setErrorMessage(data.message);
-      throw new Error(data.message);
+      if (!response.ok) {
+        const data = await response.json();
+        setErrorMessage(data.message);
+        throw new Error(data.message);
+      }
+
+      setIsEditingPassword(false);
+      setUpdateCount(updateCount + 1);
+      setErrorMessage("");
+    } catch (error) {
+      setErrorMessage(error.message);
     }
-
-    setIsEditingPassword(false);
-    setUpdateCount(updateCount + 1);
-    setErrorMessage("");
   };
+
   const handleSaveOpenAIKey = async () => {
-    // Send a PUT request to the server to update the OpenAI API key
-    const response = await fetch(`/Account/api_key/${accountId}`, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ api_key: newOpenAIKey }),
-    });
+    try {
+      // Send a PUT request to the server to update the OpenAI API key
+      const response = await fetch(`/Account/api_key/${accountId}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ api_key: newOpenAIKey }),
+      });
 
-    if (!response.ok) {
-      const data = await response.json();
-      setErrorMessage(data.message);
-      throw new Error(data.message);
+      if (!response.ok) {
+        const data = await response.json();
+        setErrorMessage(data.message);
+        throw new Error(data.message);
+      }
+
+      setIsEditingOpenAIKey(false);
+      setUpdateCount(updateCount + 1);
+      setErrorMessage("");
+    } catch (error) {
+      setErrorMessage(error.message);
     }
-
-    setIsEditingOpenAIKey(false);
-    setUpdateCount(updateCount + 1);
-    setErrorMessage("");
   };
 
   useEffect(() => {
@@ -164,62 +189,129 @@ const AccountPage = () => {
           <div className="py-3">
             <h3 className="fw-bold">Username:</h3>
             {/* If isEditingUsername is true, show input field and save button. Else, show account account username and edit button */}
-            {isEditingUsername ? <input type="text" onChange={(e) => setNewUsername(e.target.value)} /> : <p>{account.username}</p>}
             {isEditingUsername ? (
-              <button className="btn btn-primary fw-bold" onClick={handleSaveUsername}>
-                Save
-              </button>
+              <div>
+                <div>
+                  <input type="text" onChange={(e) => setNewUsername(e.target.value)} style={{ width: "210px" }} />
+                </div>
+                <div className="mt-2">
+                  <button className="btn btn-primary fw-bold" onClick={handleSaveUsername} style={{ width: "100px" }}>
+                    Save
+                  </button>
+                  <button className="btn btn-danger fw-bold ms-2" onClick={() => setIsEditingUsername(false)} style={{ width: "100px" }}>
+                    Cancel
+                  </button>
+                </div>
+              </div>
             ) : (
-              <button className="btn btn-primary fw-bold" onClick={handleEditUsername}>
-                Edit
-              </button>
+              <div>
+                <div>
+                  <p>{account.username}</p>
+                </div>
+                <div className="mt-2">
+                  <button className="btn btn-primary fw-bold" onClick={handleEditUsername} style={{ width: "100px" }}>
+                    Edit
+                  </button>
+                </div>
+              </div>
             )}
-            {errorMessage && <p className="text-danger">{errorMessage}</p>} {/* If there is an error, display it */}
+            {errorMessage && isEditingUsername && <p className="text-danger">{errorMessage}</p>} {/* If there is an error, display it */}
           </div>
           {/* Name */}
           <div className="py-3">
             <h3 className="fw-bold">Name:</h3>
             {/* If isEditingName is true, show input field and save button. Else, show account account name and edit button */}
-            {isEditingName ? <input type="text" onChange={(e) => setNewName(e.target.value)} /> : <p>{account.name}</p>}
             {isEditingName ? (
-              <button className="btn btn-primary fw-bold" onClick={handleSaveName}>
-                Save
-              </button>
+              <div>
+                <div>
+                  <input type="text" onChange={(e) => setNewName(e.target.value)} style={{ width: "210px" }} />
+                </div>
+                <div className="mt-2">
+                  <button className="btn btn-primary fw-bold" onClick={handleSaveName} style={{ width: "100px" }}>
+                    Save
+                  </button>
+                  <button className="btn btn-danger fw-bold ms-2" onClick={() => setIsEditingName(false)} style={{ width: "100px" }}>
+                    Cancel
+                  </button>
+                </div>
+              </div>
             ) : (
-              <button className="btn btn-primary fw-bold" onClick={handleEditName}>
-                Edit
-              </button>
+              <div>
+                <div>
+                  <p>{account.name}</p>
+                </div>
+                <div className="mt-2">
+                  <button className="btn btn-primary fw-bold" onClick={handleEditName} style={{ width: "100px" }}>
+                    Edit
+                  </button>
+                </div>
+              </div>
             )}
+            {errorMessage && isEditingName && <p className="text-danger">{errorMessage}</p>} {/* If there is an error, display it */}
           </div>
           {/* Password */}
           <div className="py-3">
             <h3 className="fw-bold">Password:</h3>
             {/* If isEditingPassword is true, show input field and save button. Else, show <p> tag and edit button */}
-            {isEditingPassword ? <input type="password" onChange={(e) => setNewPassword(e.target.value)} /> : <p>*********</p>}
             {isEditingPassword ? (
-              <button className="btn btn-primary fw-bold" onClick={handleSavePassword}>
-                Save
-              </button>
+              <div>
+                <div>
+                  <input type="password" onChange={(e) => setNewPassword(e.target.value)} style={{ width: "210px" }} />
+                </div>
+                <div className="mt-2">
+                  <button className="btn btn-primary fw-bold" onClick={handleSavePassword} style={{ width: "100px" }}>
+                    Save
+                  </button>
+                  <button className="btn btn-danger fw-bold ms-2" onClick={() => setIsEditingPassword(false)} style={{ width: "100px" }}>
+                    Cancel
+                  </button>
+                </div>
+              </div>
             ) : (
-              <button className="btn btn-primary fw-bold" onClick={handleEditPassword}>
-                Edit
-              </button>
+              <div>
+                <div>
+                  <p>*********</p>
+                </div>
+                <div className="mt-2">
+                  <button className="btn btn-primary fw-bold" onClick={handleEditPassword} style={{ width: "100px" }}>
+                    Edit
+                  </button>
+                </div>
+              </div>
             )}
+            {errorMessage && isEditingPassword && <p className="text-danger">{errorMessage}</p>} {/* If there is an error, display it */}
           </div>
           {/* API Key */}
           <div className="py-3">
             <h3 className="fw-bold">OpenAI API Key:</h3>
             {/* If isEditingOpenAIKey is true, show input field and save button. Else, show <p> tag and edit button */}
-            {isEditingOpenAIKey ? <input type="text" onChange={(e) => setNewOpenAIKey(e.target.value)} /> : <p>*********</p>}
             {isEditingOpenAIKey ? (
-              <button className="btn btn-primary fw-bold" onClick={handleSaveOpenAIKey}>
-                Save
-              </button>
+              <div>
+                <div>
+                  <input type="text" onChange={(e) => setNewOpenAIKey(e.target.value)} style={{ width: "210px" }} />
+                </div>
+                <div className="mt-2">
+                  <button className="btn btn-primary fw-bold" onClick={handleSaveOpenAIKey} style={{ width: "100px" }}>
+                    Save
+                  </button>
+                  <button className="btn btn-danger fw-bold ms-2" onClick={() => setIsEditingOpenAIKey(false)} style={{ width: "100px" }}>
+                    Cancel
+                  </button>
+                </div>
+              </div>
             ) : (
-              <button className="btn btn-primary fw-bold" onClick={handleEditOpenAIKey}>
-                Edit
-              </button>
+              <div>
+                <div>
+                  <p>*********</p>
+                </div>
+                <div className="mt-2">
+                  <button className="btn btn-primary fw-bold" onClick={handleEditOpenAIKey} style={{ width: "100px" }}>
+                    Edit
+                  </button>
+                </div>
+              </div>
             )}
+            {errorMessage && isEditingOpenAIKey && <p className="text-danger">{errorMessage}</p>} {/* If there is an error, display it */}
           </div>
           {/* Delete Account */}
           <div className="py-3">
