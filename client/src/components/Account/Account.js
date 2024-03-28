@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
 import "../../styles/global.css";
+import { useNavigate } from "react-router-dom";
+import "./Account.css";
 
 // Create a variable that contains an account id
 const accountId = 2;
@@ -26,6 +28,9 @@ const AccountPage = () => {
   // State to store error messages
   const [errorMessage, setErrorMessage] = useState("");
 
+  // State to store isDeleting state
+  const [isDeleting, setIsDeleting] = useState(false);
+
   // Functions to handle the edit button click events
   // Each function sets their respective isEditing state to true and the other isEditing states to false
   const handleEditUsername = () => {
@@ -48,6 +53,14 @@ const AccountPage = () => {
   };
   const handleEditOpenAIKey = () => {
     setIsEditingOpenAIKey(true);
+    setIsEditingUsername(false);
+    setIsEditingName(false);
+    setIsEditingPassword(false);
+  };
+
+  const handleDeleteAccountPrompt = () => {
+    setIsDeleting(true);
+    setIsEditingOpenAIKey(false);
     setIsEditingUsername(false);
     setIsEditingName(false);
     setIsEditingPassword(false);
@@ -151,6 +164,30 @@ const AccountPage = () => {
     }
   };
 
+  // Get the navigate object from the useNavigate hook
+  const navigate = useNavigate();
+
+  // Function to handle the delete account button click event
+  const handleDeleteAccount = async () => {
+    try {
+      // Send a DELETE request to the server to delete the account
+      const response = await fetch(`/Account/${accountId}`, {
+        method: "DELETE",
+      });
+
+      if (!response.ok) {
+        const data = await response.json();
+        setErrorMessage(data.message);
+        throw new Error(data.message);
+      }
+
+      // Redirect to the login page
+      navigate("/login");
+    } catch (error) {
+      setErrorMessage(error.message);
+    }
+  };
+
   useEffect(() => {
     const fetchData = async () => {
       // Send a GET request to the server to get the account data
@@ -185,6 +222,32 @@ const AccountPage = () => {
       {/* Account settings container */}
       <div className="d-flex justify-content-center mx-auto mt-3">
         <div className="col-10 col-lg-6">
+          {/* Delete Account confirmation */}
+          {isDeleting && (
+            <div className="delete-overlay">
+              <div className="d-flex justify-content-center">
+                <div className="col-10 col-lg-6 text-center p-4" style={{ backgroundColor: "#1E1E1E", borderRadius: "5px" }}>
+                  <h2>Are you sure?</h2>
+                  <h4 className="py-5">If you delete your account you will not be able to recover any of your data and your account will be deleted forever.</h4>
+                  <div className="d-flex justify-content-center mt-3">
+                    <button className="btn btn-danger fw-bold" onClick={handleDeleteAccount} style={{ width: "200px" }}>
+                      Delete Account
+                    </button>
+                    <button
+                      className="btn btn-primary fw-bold ms-2"
+                      onClick={() => {
+                        setIsDeleting(false);
+                        setErrorMessage("");
+                      }}
+                      style={{ width: "200px" }}
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
           {/* Username */}
           <div className="py-3">
             <h3 className="fw-bold">Username:</h3>
@@ -198,7 +261,14 @@ const AccountPage = () => {
                   <button className="btn btn-primary fw-bold" onClick={handleSaveUsername} style={{ width: "100px" }}>
                     Save
                   </button>
-                  <button className="btn btn-danger fw-bold ms-2" onClick={() => setIsEditingUsername(false)} style={{ width: "100px" }}>
+                  <button
+                    className="btn btn-danger fw-bold ms-2"
+                    onClick={() => {
+                      setIsEditingUsername(false);
+                      setErrorMessage("");
+                    }}
+                    style={{ width: "100px" }}
+                  >
                     Cancel
                   </button>
                 </div>
@@ -230,7 +300,14 @@ const AccountPage = () => {
                   <button className="btn btn-primary fw-bold" onClick={handleSaveName} style={{ width: "100px" }}>
                     Save
                   </button>
-                  <button className="btn btn-danger fw-bold ms-2" onClick={() => setIsEditingName(false)} style={{ width: "100px" }}>
+                  <button
+                    className="btn btn-danger fw-bold ms-2"
+                    onClick={() => {
+                      setIsEditingName(false);
+                      setErrorMessage("");
+                    }}
+                    style={{ width: "100px" }}
+                  >
                     Cancel
                   </button>
                 </div>
@@ -262,7 +339,14 @@ const AccountPage = () => {
                   <button className="btn btn-primary fw-bold" onClick={handleSavePassword} style={{ width: "100px" }}>
                     Save
                   </button>
-                  <button className="btn btn-danger fw-bold ms-2" onClick={() => setIsEditingPassword(false)} style={{ width: "100px" }}>
+                  <button
+                    className="btn btn-danger fw-bold ms-2"
+                    onClick={() => {
+                      setIsEditingPassword(false);
+                      setErrorMessage("");
+                    }}
+                    style={{ width: "100px" }}
+                  >
                     Cancel
                   </button>
                 </div>
@@ -294,7 +378,14 @@ const AccountPage = () => {
                   <button className="btn btn-primary fw-bold" onClick={handleSaveOpenAIKey} style={{ width: "100px" }}>
                     Save
                   </button>
-                  <button className="btn btn-danger fw-bold ms-2" onClick={() => setIsEditingOpenAIKey(false)} style={{ width: "100px" }}>
+                  <button
+                    className="btn btn-danger fw-bold ms-2"
+                    onClick={() => {
+                      setIsEditingOpenAIKey(false);
+                      setErrorMessage("");
+                    }}
+                    style={{ width: "100px" }}
+                  >
                     Cancel
                   </button>
                 </div>
@@ -316,7 +407,19 @@ const AccountPage = () => {
           {/* Delete Account */}
           <div className="py-3">
             <h3 className="fw-bold">Remove Account</h3>
-            <button className="btn btn-danger fw-bold">Delete Account</button>
+            <div className="mt-2">
+              <button
+                className="btn btn-danger fw-bold"
+                onClick={() => {
+                  handleDeleteAccountPrompt(true);
+                  setErrorMessage("");
+                }}
+                style={{ width: "200px" }}
+              >
+                Delete Account
+              </button>
+            </div>
+            {errorMessage && isDeleting && <p className="text-danger">{errorMessage}</p>} {/* If there is an error, display it */}
           </div>
         </div>
       </div>
