@@ -4,8 +4,8 @@ import React from "react";
 import ReactDOM from "react-dom";
 
 import Navbar from "./components/Navigation/Navigation";
-import SignUpPage from "./components/SignUp";
-import LoginPage from "./components/Login";
+import SignUpPage from "./components/SignUp/SignUp";
+import LoginPage from "./components/Login/Login";
 import HomePage from "./components/Home/Home";
 import ScanResults from "./components/Scan Results/ScanResults";
 import GalleryPage from "./components/Gallery/Gallery";

@@ -34,24 +34,28 @@ const AccountPage = () => {
   // Functions to handle the edit button click events
   // Each function sets their respective isEditing state to true and the other isEditing states to false
   const handleEditUsername = () => {
+    setNewUsername("");
     setIsEditingUsername(true);
     setIsEditingName(false);
     setIsEditingPassword(false);
     setIsEditingOpenAIKey(false);
   };
   const handleEditName = () => {
+    setNewName("");
     setIsEditingName(true);
     setIsEditingUsername(false);
     setIsEditingPassword(false);
     setIsEditingOpenAIKey(false);
   };
   const handleEditPassword = () => {
+    setNewPassword("");
     setIsEditingPassword(true);
     setIsEditingUsername(false);
     setIsEditingName(false);
     setIsEditingOpenAIKey(false);
   };
   const handleEditOpenAIKey = () => {
+    setNewOpenAIKey("");
     setIsEditingOpenAIKey(true);
     setIsEditingUsername(false);
     setIsEditingName(false);
@@ -68,6 +72,12 @@ const AccountPage = () => {
 
   // Function to handle the save button click events
   const handleSaveUsername = async () => {
+    // If the new username is empty, set the error message and return
+    if (!newUsername) {
+      setErrorMessage("Username cannot be empty");
+      return;
+    }
+
     try {
       // Send a PUT request to the server to update the username
       const response = await fetch(`/Account/username/${accountId}`, {
@@ -91,6 +101,10 @@ const AccountPage = () => {
     }
   };
   const handleSaveName = async () => {
+    if (!newName) {
+      setErrorMessage("Username cannot be empty");
+      return;
+    }
     try {
       // Send a PUT request to the server to update the name
       const response = await fetch(`/Account/name/${accountId}`, {
@@ -115,6 +129,10 @@ const AccountPage = () => {
     }
   };
   const handleSavePassword = async () => {
+    if (!newPassword) {
+      setErrorMessage("Password cannot be empty");
+      return;
+    }
     try {
       // Send a PUT request to the server to update the password
       const response = await fetch(`/Account/password/${accountId}`, {
@@ -140,6 +158,10 @@ const AccountPage = () => {
   };
 
   const handleSaveOpenAIKey = async () => {
+    if (!newOpenAIKey) {
+      setErrorMessage("OpenAI API Key cannot be empty");
+      return;
+    }
     try {
       // Send a PUT request to the server to update the OpenAI API key
       const response = await fetch(`/Account/api_key/${accountId}`, {
@@ -234,7 +256,7 @@ const AccountPage = () => {
                       Delete Account
                     </button>
                     <button
-                      className="btn btn-primary fw-bold ms-2"
+                      className="btn btn-secondary fw-bold ms-2"
                       onClick={() => {
                         setIsDeleting(false);
                         setErrorMessage("");
@@ -249,7 +271,7 @@ const AccountPage = () => {
             </div>
           )}
           {/* Username */}
-          <div className="py-3">
+          <div className="my-4">
             <h3 className="fw-bold">Username:</h3>
             {/* If isEditingUsername is true, show input field and save button. Else, show account account username and edit button */}
             {isEditingUsername ? (
@@ -262,7 +284,7 @@ const AccountPage = () => {
                     Save
                   </button>
                   <button
-                    className="btn btn-danger fw-bold ms-2"
+                    className="btn btn-secondary fw-bold ms-2"
                     onClick={() => {
                       setIsEditingUsername(false);
                       setErrorMessage("");
@@ -288,7 +310,7 @@ const AccountPage = () => {
             {errorMessage && isEditingUsername && <p className="text-danger">{errorMessage}</p>} {/* If there is an error, display it */}
           </div>
           {/* Name */}
-          <div className="py-3">
+          <div className="my-4">
             <h3 className="fw-bold">Name:</h3>
             {/* If isEditingName is true, show input field and save button. Else, show account account name and edit button */}
             {isEditingName ? (
@@ -301,7 +323,7 @@ const AccountPage = () => {
                     Save
                   </button>
                   <button
-                    className="btn btn-danger fw-bold ms-2"
+                    className="btn btn-secondary fw-bold ms-2"
                     onClick={() => {
                       setIsEditingName(false);
                       setErrorMessage("");
@@ -327,7 +349,7 @@ const AccountPage = () => {
             {errorMessage && isEditingName && <p className="text-danger">{errorMessage}</p>} {/* If there is an error, display it */}
           </div>
           {/* Password */}
-          <div className="py-3">
+          <div className="my-4">
             <h3 className="fw-bold">Password:</h3>
             {/* If isEditingPassword is true, show input field and save button. Else, show <p> tag and edit button */}
             {isEditingPassword ? (
@@ -340,7 +362,7 @@ const AccountPage = () => {
                     Save
                   </button>
                   <button
-                    className="btn btn-danger fw-bold ms-2"
+                    className="btn btn-secondary fw-bold ms-2"
                     onClick={() => {
                       setIsEditingPassword(false);
                       setErrorMessage("");
@@ -366,7 +388,7 @@ const AccountPage = () => {
             {errorMessage && isEditingPassword && <p className="text-danger">{errorMessage}</p>} {/* If there is an error, display it */}
           </div>
           {/* API Key */}
-          <div className="py-3">
+          <div className="my-4">
             <h3 className="fw-bold">OpenAI API Key:</h3>
             {/* If isEditingOpenAIKey is true, show input field and save button. Else, show <p> tag and edit button */}
             {isEditingOpenAIKey ? (
@@ -379,7 +401,7 @@ const AccountPage = () => {
                     Save
                   </button>
                   <button
-                    className="btn btn-danger fw-bold ms-2"
+                    className="btn btn-secondary fw-bold ms-2"
                     onClick={() => {
                       setIsEditingOpenAIKey(false);
                       setErrorMessage("");
@@ -405,7 +427,7 @@ const AccountPage = () => {
             {errorMessage && isEditingOpenAIKey && <p className="text-danger">{errorMessage}</p>} {/* If there is an error, display it */}
           </div>
           {/* Delete Account */}
-          <div className="py-3">
+          <div className="my-4">
             <h3 className="fw-bold">Remove Account</h3>
             <div className="mt-2">
               <button

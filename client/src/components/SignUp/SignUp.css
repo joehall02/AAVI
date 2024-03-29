@@ -1,0 +1,22 @@
+.custom-input {
+    border: none;
+    border-radius: 0;
+    border-bottom: 1px solid white;
+    background-color: transparent;
+    font-size: 1.2em;
+}
+
+.custom-input::placeholder {
+    color: white;
+}
+
+/* Used to make the password eye icon white  */
+.custom-input::-ms-reveal {
+    filter: invert(100%);
+}
+
+.custom-input:focus {
+    box-shadow: none;
+    background-color: transparent;
+    border-bottom: 1px solid lightskyblue;
+}

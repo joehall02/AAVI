@@ -66,7 +66,7 @@ const HomePage = () => {
         <input type="file" accept="image/*" capture="camera" className="d-none" onChange={handleFileChange} />
         <i className="bi bi-camera-fill" style={{ fontSize: 60 }}></i>
         <p className="fw-bold">Tap to scan image with your camera!</p>
-        <p className="fw-bold">{fileName}</p>
+        <p className="fw-bold text-center">{fileName}</p>
       </label>
 
       <div className="d-flex justify-content-center">
