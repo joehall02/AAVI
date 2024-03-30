@@ -65,10 +65,14 @@ def analyse_image(client, encoded_image):
         model="gpt-4-vision-preview",
         
         messages=[
+             # Add a system message to the request explaining the role of the AI
+            {
+                "role": "system",
+                "content": "Give a detailed summary of what is in this image. Make sure to keep your reply to a maximum of 1000 characters."
+            },
             {
                 "role": "user",
-                "content": [
-                    {"type": "text", "text": ("What is in this image?")},
+                "content": [                    
                     {
                         "type": "image_url",
                         "image_url": {
@@ -78,7 +82,7 @@ def analyse_image(client, encoded_image):
                 ],
             },
         ],
-        max_tokens=100,                    
+        max_tokens=250,                    
     )
 
     # Get the response in text
@@ -89,6 +93,11 @@ def analyse_message(client, encoded_image, messages):
 
      # Create a payload to send to the OpenAI API with the encoded image
     messages_request = [
+        # Add a system message to the request explaining the role of the AI
+        {
+            "role": "system",
+            "content": "You are a helpful assistant that discusses the content of the provided image. You should not answer questions unrelated to the image, even if the user asks them. Make sure to keep messages to a maximum of 500 characters."
+        },
         {
             "role": "user",
             "content": [
@@ -124,7 +133,7 @@ def analyse_message(client, encoded_image, messages):
     response = client.chat.completions.create(
         model="gpt-4-vision-preview",
         messages=messages_request,
-        max_tokens=100,                    
+        max_tokens=200,                    
     )      
 
     return response.choices[0].message.content.strip()  
