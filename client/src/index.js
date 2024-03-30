@@ -23,12 +23,12 @@ const App = () => {
       <Container className="vh-100 mt-5">
         <Routes>
           <Route path="/signup" element={<SignUpPage />} />
-          <Route path="/login" element={<LoginPage />} />
           <Route path="/scan_results" element={<ScanResults />} />
           <Route path="/gallery" element={<GalleryPage />} />
           <Route path="/conversation" element={<ConversationPage />} />
           <Route path="/account" element={<AccountPage />} />
-          <Route path="/" element={<HomePage />} />
+          <Route path="/home_page" element={<HomePage />} />
+          <Route path="/" element={<LoginPage />} />
         </Routes>
       </Container>
     </Router>

@@ -204,7 +204,7 @@ const AccountPage = () => {
       }
 
       // Redirect to the login page
-      navigate("/login");
+      navigate("/");
     } catch (error) {
       setErrorMessage(error.message);
     }

@@ -14,7 +14,7 @@ const Navigation = () => {
   return (
     <Navbar bg="black" variant="dark" expand="md">
       <Container>
-        <Navbar.Brand as={Link} to="/" className="text-white fs-4 fw-bold">
+        <Navbar.Brand as={Link} to="/home_page" className="text-white fs-4 fw-bold">
           AAVI
         </Navbar.Brand>
         <Navbar.Toggle onClick={toggle} aria-controls="basic-navbar-nav" className="custom-toggler">
@@ -24,7 +24,7 @@ const Navigation = () => {
         <Navbar.Collapse id="basic-navbar-nav">
           <Nav className="ms-auto text-end">
             {/* ms-auto moves the Nav items to the right side of the Navbar in desktop mode, text-end does the same in mobile */}
-            <Nav.Link as={Link} to="/" className="text-white fs-4 custom-underline">
+            <Nav.Link as={Link} to="/home_page" className="text-white fs-4 custom-underline">
               Home
             </Nav.Link>
             <Nav.Link as={Link} to="/gallery" className="text-white fs-4 custom-underline">
@@ -36,7 +36,7 @@ const Navigation = () => {
             <Nav.Link as={Link} to="/account" className="text-white fs-4 custom-underline">
               Account
             </Nav.Link>
-            <Nav.Link as={Link} to="/login" className="text-white fs-4 custom-underline">
+            <Nav.Link as={Link} to="/" className="text-white fs-4 custom-underline">
               Login
             </Nav.Link>
             <Nav.Link as={Link} to="/signup" className="text-white fs-4 custom-underline">
