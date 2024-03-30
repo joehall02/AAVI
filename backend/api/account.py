@@ -22,7 +22,8 @@ account_model = account_ns.model('Account', {
 partial_account_model = account_ns.model('Partial Account', {
     'id': fields.Integer(),
     'username': fields.String(),
-    'name': fields.String()
+    'name': fields.String(),
+    'role': fields.String()
 })
 
 api_key_model = account_ns.model('API Key', {

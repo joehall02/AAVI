@@ -12,6 +12,7 @@ get_account_model = admin_settings_ns.model('Account', {
     'id': fields.Integer(),
     'name': fields.String(),
     'username': fields.String(),
+    'role': fields.String()
 })
 
 post_account_model = admin_settings_ns.model('Account', {

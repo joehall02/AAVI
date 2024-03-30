@@ -36,6 +36,9 @@ const Navigation = () => {
             <Nav.Link as={Link} to="/account" className="text-white fs-4 custom-underline">
               Account
             </Nav.Link>
+            <Nav.Link as={Link} to="/settings" className="text-white fs-4 custom-underline">
+              Settings
+            </Nav.Link>
             <Nav.Link as={Link} to="/" className="text-white fs-4 custom-underline">
               Login
             </Nav.Link>

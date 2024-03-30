@@ -11,6 +11,7 @@ import ScanResults from "./components/Scan Results/ScanResults";
 import GalleryPage from "./components/Gallery/Gallery";
 import ConversationPage from "./components/Conversation/Conversation";
 import AccountPage from "./components/Account/Account";
+import Settings from "./components/Settings/Settings";
 
 import { Container } from "react-bootstrap";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
@@ -27,6 +28,7 @@ const App = () => {
           <Route path="/gallery" element={<GalleryPage />} />
           <Route path="/conversation" element={<ConversationPage />} />
           <Route path="/account" element={<AccountPage />} />
+          <Route path="/settings" element={<Settings />} />
           <Route path="/home_page" element={<HomePage />} />
           <Route path="/" element={<LoginPage />} />
         </Routes>
