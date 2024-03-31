@@ -24,7 +24,7 @@ post_account_model = admin_settings_ns.model('Account', {
 
 # Define a resource for the '/admin_settings' endpoint
 # Used to get all accounts on admin settings page
-@admin_settings_ns.route('/', methods=['GET', 'POST', 'DELETE']) 
+@admin_settings_ns.route('/', methods=['GET', 'POST']) 
 class AdminSettingsResource(Resource):
     @admin_settings_ns.marshal_list_with(get_account_model)
     #@jwt_required() # Protect this endpoint with JWT
