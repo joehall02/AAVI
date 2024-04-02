@@ -61,6 +61,7 @@ class Conversation(db.Model):
     id = db.Column(db.Integer(), primary_key=True)
     title = db.Column(db.String(50), nullable=False)
     image_path = db.Column(db.String(100), nullable=False)
+    tts_audio_path = db.Column(db.String(100), nullable=False)
     date_created = db.Column(db.Date(), nullable=False, default=date.today())
     summary = db.Column(db.String(500), nullable=False)
 
@@ -83,6 +84,7 @@ class Message(db.Model):
     id = db.Column(db.Integer(), primary_key=True)
     content = db.Column(db.String(300), nullable=False)
     type = db.Column(db.String(10), nullable=False)
+    tts_audio_path = db.Column(db.String(100), nullable=False)
     message_number = db.Column(db.Integer(), nullable=False)
 
     # Foreign key to Conversation
