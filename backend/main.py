@@ -27,6 +27,9 @@ def create_app(config=DevConfig):
     # Set the upload folder for images
     app.config['UPLOAD_FOLDER'] = '../Images'
 
+    # Set the upload folder for audio files
+    app.config['AUDIO_UPLOAD_FOLDER'] = '../Audio'
+
     # Set the allowed file extensions for uploaded files
     app.config['ALLOWED_EXTENSIONS'] = {'png', 'jpg', 'jpeg', 'webp'}
 

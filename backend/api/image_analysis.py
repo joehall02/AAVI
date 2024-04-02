@@ -138,6 +138,18 @@ def analyse_message(client, encoded_image, messages):
 
     return response.choices[0].message.content.strip()  
 
+# Function to generate text to speech from the AI response
+def generate_text_to_speech(client, ai_response):
+    
+    # Create a payload to send to the OpenAI API
+    response = client.audio.speech.create(
+        model="tts-1",
+        voice="onyx",
+        input=ai_response
+    )
+
+    return response
+
 # Function to generate a title for the conversation
 def generate_title(client, ai_response):
 
@@ -228,7 +240,14 @@ class ImageAnalysisResource(Resource):
 
                 # Post the image summary to the OpenAI API to create a title for the conversation
                 title = generate_title(client, ai_response)
-                
+
+                # Generate text to speech from the AI response
+                tts_response = generate_text_to_speech(client, ai_response)
+
+                # Save the audio file to the audio upload folder                
+                audio_path = os.path.join(current_app.config['AUDIO_UPLOAD_FOLDER'], f"{unique_filename}.mp3")
+                tts_response.stream_to_file(audio_path)
+
                 # Remove any quotation marks from the title
                 title = title.replace('"', '')
 

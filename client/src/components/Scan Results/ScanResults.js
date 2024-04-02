@@ -10,6 +10,8 @@ const ScanResults = () => {
   const [input, setInput] = useState(""); // State to store the user input
   const [messages, setMessages] = useState([]); // State to store the messages in the chat, initially empty
 
+  const [isLoading, setIsLoading] = useState(false); // State to store the loading state in order to show loading message
+
   const location = useLocation(); // Get the location object from the useLocation hook
   const accountId = location.state ? location.state.accountId : null; // Get the account id passed from home.js
 
@@ -57,6 +59,8 @@ const ScanResults = () => {
       // prevMessages is the previous state of the messages, this stops the messages from being overwritten
       setMessages((prevMessages) => [...prevMessages, { isUser: true, text: input }]);
 
+      setIsLoading(true); // Shows the loading message
+
       setInput(""); // Clear the input field
 
       // Send a POST request to the server with the user input,
@@ -71,6 +75,8 @@ const ScanResults = () => {
       // Send a GET request to the server to get the ai response
       const response = await fetch(`/Image Analysis/message/${conversation.id}`);
       const ai_message = await response.json(); // Get the json data from the response
+
+      setIsLoading(false); // Hide the loading message
 
       // Add the ai response to the messages state
       setMessages((prevMessages) => [...prevMessages, { isUser: false, text: ai_message.content }]);
@@ -116,6 +122,7 @@ const ScanResults = () => {
               {messages.map((message, index) => (
                 <Message key={index} isUser={message.isUser} text={message.text} />
               ))}
+              {isLoading && <Message isUser={false} text="Loading..." />}
             </div>
             {/* Chatbot input */}
             <div className="mt-auto col-11 col-lg-12 mb-3 mx-auto">
