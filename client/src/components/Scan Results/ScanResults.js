@@ -40,7 +40,8 @@ const ScanResults = () => {
   // Use the useEffect hook to update the messages state with the summary from the server
   useEffect(() => {
     if (conversation) {
-      setMessages([{ isUser: false, text: conversation.summary }]);
+      console.log(conversation.tts_audio_path);
+      setMessages([{ isUser: false, text: conversation.summary, audiosrc: conversation.tts_audio_path }]);
     }
   }, [conversation]);
 
@@ -79,7 +80,7 @@ const ScanResults = () => {
       setIsLoading(false); // Hide the loading message
 
       // Add the ai response to the messages state
-      setMessages((prevMessages) => [...prevMessages, { isUser: false, text: ai_message.content }]);
+      setMessages((prevMessages) => [...prevMessages, { isUser: false, text: ai_message.content, audiosrc: ai_message.tts_audio_path }]);
     }
   };
 
@@ -120,7 +121,7 @@ const ScanResults = () => {
               </div>
               {/* Maps all the messages to an array of message components and displays them */}
               {messages.map((message, index) => (
-                <Message key={index} isUser={message.isUser} text={message.text} />
+                <Message key={index} isUser={message.isUser} text={message.text} audiosrc={message.audiosrc} />
               ))}
               {isLoading && <Message isUser={false} text="Loading..." />}
             </div>

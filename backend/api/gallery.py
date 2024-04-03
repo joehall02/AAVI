@@ -18,6 +18,7 @@ message_model = gallery_ns.model('Message', {
     'id': fields.Integer(),
     'content': fields.String(),
     'message_number': fields.Integer(),
+    'tts_audio_path': fields.String(),
     'conversation_id': fields.Integer(),
     'type': fields.String()
 })
@@ -29,6 +30,7 @@ conversation_model = gallery_ns.model('Conversation', {
     'image_path': fields.String(),
     'date_created': fields.Date(),
     'summary': fields.String(),
+    'tts_audio_path': fields.String(),
     'account_id': fields.Integer(),
     'messages': fields.List(fields.Nested(message_model))
 })

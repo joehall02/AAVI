@@ -24,6 +24,11 @@
     color: #fff;
 }
 
+.custom-audio-icon {
+    font-size: 25px;
+    cursor: pointer;
+}
+
 @media (max-width: 600px) {
     .user-message,
     .chatbot-message {

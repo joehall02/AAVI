@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useLocation } from "react-router-dom";
 import Message from "../Message/Message";
+import "./Conversation.css";
 
 const Conversation = () => {
   const location = useLocation();
@@ -30,6 +31,21 @@ const Conversation = () => {
       console.error(error);
     });
   }, []);
+
+  // Function to play the audio
+  const audio = useRef(null);
+
+  const playAudio = (audiosrc) => {
+    // If the audio is already playing, pause and reset the audio
+    if (audio.current) {
+      audio.current.pause();
+      audio.current.currentTime = 0;
+    }
+
+    // Get the audio source and play the audio
+    audio.current = new Audio(`http://127.0.0.1:5000/Audio/${audiosrc}`);
+    audio.current.play();
+  };
 
   if (isLoading) {
     return <div>Loading...</div>;
@@ -63,6 +79,7 @@ const Conversation = () => {
               <p>
                 <strong>Summary:</strong> {conversation.summary}
               </p>
+              <i className="bi bi-soundwave custom-audio-icon" onClick={() => playAudio(conversation.tts_audio_path)}></i>
             </div>
 
             {/* Chatbot title */}
@@ -80,9 +97,9 @@ const Conversation = () => {
               determine if it is a user message or ai message */}
               {conversation.messages?.map((message, index) => {
                 if (message.type === "User") {
-                  return <Message key={index} isUser={true} text={message.content} />;
+                  return <Message key={index} isUser={true} text={message.content} audiosrc={message.tts_audio_path} />;
                 } else {
-                  return <Message key={index} isUser={false} text={message.content} />;
+                  return <Message key={index} isUser={false} text={message.content} audiosrc={message.tts_audio_path} />;
                 }
               })}
             </div>

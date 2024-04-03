@@ -20,6 +20,7 @@ conversation_model = image_analysis_ns.model('Conversation', {
     'image_path': fields.String(),
     'date_created': fields.Date(),
     'summary': fields.String(),
+    'tts_audio_path': fields.String(),
     'account_id': fields.Integer()
 })
 
@@ -29,6 +30,7 @@ message_model = image_analysis_ns.model('Message', {
     'content': fields.String(),
     'message_number': fields.Integer(),
     'type': fields.String(),
+    'tts_audio_path': fields.String(),
     'conversation_id': fields.Integer()
 })
 
@@ -248,11 +250,13 @@ class ImageAnalysisResource(Resource):
                 audio_path = os.path.join(current_app.config['AUDIO_UPLOAD_FOLDER'], f"{unique_filename}.mp3")
                 tts_response.stream_to_file(audio_path)
 
+                nameOfFile = f"{unique_filename}.mp3"
+
                 # Remove any quotation marks from the title
                 title = title.replace('"', '')
 
                 # Create a new conversation with the image details
-                new_conversation = Conversation(title=title, image_path=image_path, summary=ai_response, account_id=account_id)
+                new_conversation = Conversation(title=title, image_path=image_path, summary=ai_response, tts_audio_path=nameOfFile, account_id=account_id)
 
                 # Save the conversation to the database
                 new_conversation.save()
@@ -294,20 +298,27 @@ class ImageAnalysisResource(Resource):
 
         last_message_number = get_last_message_number(conversation_id)
 
-        # Create a new message with the content, message number and conversation ID
-        new_message = Message(content=data.get('content'), message_number=last_message_number, type='User', conversation_id=conversation_id) 
-
-        # Save the message to the database
-        new_message.save()        
-
         # Get the conversation from the database
         conversation = Conversation.query.get(conversation_id)
 
-        # Get the encoded image using the image path
-        encoded_image = encode_image(conversation.image_path)
-
         # Create an OpenAI client using the user's API key
         client = create_openai_client(conversation.account)
+
+        # Generate tts audio from the user's message
+        tts_response = generate_text_to_speech(client, data.get('content'))
+
+        # Save the audio file to the audio upload folder
+        audio_path = os.path.join(current_app.config['AUDIO_UPLOAD_FOLDER'], f"{conversation_id}_{last_message_number}.mp3")
+        tts_response.stream_to_file(audio_path)
+
+        # Create a new message with the content, message number and conversation ID
+        new_message = Message(content=data.get('content'), message_number=last_message_number, type='User', tts_audio_path=audio_path, conversation_id=conversation_id) 
+
+        # Save the message to the database
+        new_message.save()
+
+        # Get the encoded image using the image path
+        encoded_image = encode_image(conversation.image_path)
 
         # Get all the messages for the conversation
         messages = Message.query.filter_by(conversation_id=conversation_id).order_by(Message.message_number).all()
@@ -315,8 +326,15 @@ class ImageAnalysisResource(Resource):
         # Analyse the message
         ai_response = analyse_message(client, encoded_image, messages)
 
+        # Generate tts audio from the AI response
+        tts_response = generate_text_to_speech(client, ai_response)
+
+        # Save the audio file to the audio upload folder
+        audio_path = os.path.join(current_app.config['AUDIO_UPLOAD_FOLDER'], f"{conversation_id}_{last_message_number + 1}.mp3")
+        tts_response.stream_to_file(audio_path)
+
         # Create a new message with the AI response, message number and conversation ID
-        ai_new_message = Message(content=ai_response, message_number=last_message_number + 1, type='AI', conversation_id=conversation_id)
+        ai_new_message = Message(content=ai_response, message_number=last_message_number + 1, type='AI', tts_audio_path=audio_path, conversation_id=conversation_id)
 
         # Save the message to the database
         ai_new_message.save()
