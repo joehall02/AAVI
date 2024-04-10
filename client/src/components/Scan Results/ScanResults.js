@@ -19,6 +19,8 @@ const ScanResults = () => {
 
   // Use the useEffect hook to fetch the data from the server
   useEffect(() => {
+    document.title = "Scan Results";
+
     const apiCall = async () => {
       // Send a GET request to the server to get the scan results
       const response = await fetch(`/Image Analysis/scan_result/${user.accountId}`, {
@@ -37,7 +39,7 @@ const ScanResults = () => {
       if (response.status === 401) {
         await refreshToken(); // Refresh the access token
         // Resend the request with the new access token
-        response = apiCall();
+        response = await apiCall();
       }
 
       // If the response is not received, throw an error
@@ -113,7 +115,7 @@ const ScanResults = () => {
       if (userMessageResponse && userMessageResponse.status === 401) {
         await refreshToken(); // Refresh the access token
         // Resend the request with the new access token
-        userMessageResponse = userMessageApiCall();
+        userMessageResponse = await userMessageApiCall();
       }
 
       let aiMessageResponse = await aiMessageApiCall();
@@ -121,7 +123,7 @@ const ScanResults = () => {
       if (aiMessageResponse && aiMessageResponse.status === 401) {
         await refreshToken(); // Refresh the access token
         // Resend the request with the new access token
-        aiMessageResponse = aiMessageApiCall();
+        aiMessageResponse = await aiMessageApiCall();
       }
 
       const ai_message = await aiMessageResponse.json(); // Get the json data from the response

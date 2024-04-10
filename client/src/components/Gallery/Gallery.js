@@ -18,6 +18,8 @@ const GalleryPage = () => {
 
   // Use the useEffect hook to fetch the data from the server
   useEffect(() => {
+    document.title = "Gallery";
+
     const apiCall = async () => {
       // Send a GET request to the server to get all conversations associated with the account
       const response = await fetch(`/Gallery/${user.accountId}`, {
@@ -36,7 +38,7 @@ const GalleryPage = () => {
       if (response.status === 401) {
         await refreshToken(); // Refresh the access token
         // Resend the request with the new access token
-        response = apiCall();
+        response = await apiCall();
       }
 
       // If the response is not received, throw an error

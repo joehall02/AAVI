@@ -34,7 +34,7 @@ class AdminSettingsResource(Resource):
         return accounts
     
     @admin_settings_ns.expect(post_account_model)
-    @jwt_required() # Protect this endpoint with JWT
+    #@jwt_required() # Protect this endpoint with JWT
     def post(self):
         data = request.get_json()
         

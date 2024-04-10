@@ -1,4 +1,4 @@
-import React, { useState, useContext } from "react";
+import React, { useState, useContext, useEffect } from "react";
 import UserContext from "../UserContext/UserContext";
 import { useNavigate } from "react-router-dom";
 import "./Home.css";
@@ -18,6 +18,10 @@ const HomePage = () => {
     setFileName(e.target.files[0].name); // set the file name to the name of the file uploaded by the user
     setFile(e.target.files[0]); // Set the file to the file uploaded by the user
   };
+
+  useEffect(() => {
+    document.title = "Home";
+  }, []);
 
   // Get the navigate object from the useNavigate hook
   const navigate = useNavigate();
@@ -51,7 +55,7 @@ const HomePage = () => {
       if (response.status === 401) {
         await refreshToken(); // Refresh the access token
         // Resend the request with the new access token
-        response = apiCall();
+        response = await apiCall();
       }
 
       // If the response is not received, throw an error

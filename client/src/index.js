@@ -12,6 +12,7 @@ import GalleryPage from "./components/Gallery/Gallery";
 import ConversationPage from "./components/Conversation/Conversation";
 import AccountPage from "./components/Account/Account";
 import Settings from "./components/Settings/Settings";
+import AboutPage from "./components/About/About";
 
 import UserContext from "./components/UserContext/UserContext";
 
@@ -34,11 +35,13 @@ const App = () => {
     // Clear the user access token and refresh token from the local storage
     localStorage.removeItem("access_token");
     localStorage.removeItem("refresh_token");
+
+    // Redirect the user to the login page
+    window.location.href = "/";
   };
 
   // Function to refresh the access token when it expires
   const refreshToken = async () => {
-    console.log("Refreshing token");
     const response = await fetch("/Authentification/refresh", {
       method: "POST",
       headers: {
@@ -50,7 +53,6 @@ const App = () => {
     const data = await response.json();
 
     if (response.ok) {
-      console.log("Token refreshed");
       localStorage.setItem("access_token", data.access_token);
     } else {
       logout();
@@ -70,6 +72,7 @@ const App = () => {
             <Route path="/conversation" element={<ConversationPage />} />
             <Route path="/account" element={<AccountPage />} />
             <Route path="/settings" element={<Settings />} />
+            <Route path="/about" element={<AboutPage />} />
             <Route path="/home_page" element={<HomePage />} />
             <Route path="/" element={<LoginPage />} />
           </Routes>

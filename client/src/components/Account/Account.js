@@ -98,7 +98,7 @@ const AccountPage = () => {
       if (response.status === 401) {
         await refreshToken(); // Refresh the access token
         // Resend the request with the new access token
-        response = apiCall();
+        response = await apiCall();
       }
 
       if (!response.ok) {
@@ -139,7 +139,7 @@ const AccountPage = () => {
       if (response.status === 401) {
         await refreshToken(); // Refresh the access token
         // Resend the request with the new access token
-        response = apiCall();
+        response = await apiCall();
       }
 
       if (!response.ok) {
@@ -181,7 +181,7 @@ const AccountPage = () => {
       if (response.status === 401) {
         await refreshToken(); // Refresh the access token
         // Resend the request with the new access token
-        response = apiCall();
+        response = await apiCall();
       }
 
       if (!response.ok) {
@@ -239,7 +239,7 @@ const AccountPage = () => {
       if (response.status === 401) {
         await refreshToken(); // Refresh the access token
         // Resend the request with the new access token
-        response = apiCall();
+        response = await apiCall();
       }
 
       if (!response.ok) {
@@ -279,7 +279,7 @@ const AccountPage = () => {
       if (response.status === 401) {
         await refreshToken(); // Refresh the access token
         // Resend the request with the new access token
-        response = apiCall();
+        response = await apiCall();
       }
 
       if (!response.ok) {
@@ -314,7 +314,7 @@ const AccountPage = () => {
       if (response.status === 401) {
         await refreshToken(); // Refresh the access token
         // Resend the request with the new access token
-        response = apiCall();
+        response = await apiCall();
       }
 
       // If the response is not received, throw an error

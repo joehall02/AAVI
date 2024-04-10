@@ -1,4 +1,4 @@
-import React, { useState, useContext } from "react";
+import React, { useState, useContext, useEffect } from "react";
 import UserContext from "../UserContext/UserContext";
 import "./Login.css";
 import { Link, useNavigate } from "react-router-dom";
@@ -12,6 +12,10 @@ const LoginPage = () => {
   const [errorMessage, setErrorMessage] = useState("");
 
   const navigate = useNavigate();
+
+  useEffect(() => {
+    document.title = "Login";
+  }, []);
 
   const handleSubmit = async (event) => {
     event.preventDefault();

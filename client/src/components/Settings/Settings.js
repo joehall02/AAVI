@@ -19,6 +19,8 @@ const Settings = () => {
   const [errorMessage, setErrorMessage] = useState(""); // State to store the error message
 
   useEffect(() => {
+    document.title = "Settings";
+
     const loggedInUserApiCall = async () => {
       // Fetch the account data
       const response = await fetch(`/Account/${user.accountId}`, {
@@ -48,7 +50,7 @@ const Settings = () => {
       if (response.status === 401) {
         await refreshToken(); // Refresh the access token
         // Resend the request with the new access token
-        response = loggedInUserApiCall();
+        response = await loggedInUserApiCall();
       }
 
       if (!response.ok) {
@@ -68,7 +70,7 @@ const Settings = () => {
       if (usersResponse.status === 401) {
         await refreshToken(); // Refresh the access token
         // Resend the request with the new access token
-        usersResponse = accountsApiCall();
+        usersResponse = await accountsApiCall();
       }
 
       if (!usersResponse.ok) {
@@ -119,7 +121,7 @@ const Settings = () => {
       if (response.status === 401) {
         await refreshToken(); // Refresh the access token
         // Resend the request with the new access token
-        response = apiCall();
+        response = await apiCall();
       }
 
       // If the response is not received, throw an error
@@ -129,6 +131,7 @@ const Settings = () => {
       }
     } catch (error) {
       setErrorMessage(error.message); // Set the error message
+      return;
     }
 
     setUpdateCount(updateCount + 1); // Update the users state
@@ -150,6 +153,8 @@ const Settings = () => {
           Authorization: `Bearer ${localStorage.getItem("access_token")}`, // Set the Authorization header with the access token
         },
       });
+
+      return response;
     };
 
     try {
@@ -159,7 +164,7 @@ const Settings = () => {
       if (response.status === 401) {
         await refreshToken(); // Refresh the access token
         // Resend the request with the new access token
-        response = apiCall();
+        response = await apiCall();
       }
 
       if (!response.ok) {

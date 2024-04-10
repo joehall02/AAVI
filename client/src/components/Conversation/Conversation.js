@@ -14,6 +14,8 @@ const Conversation = () => {
 
   // Use the useEffect hook to fetch the conversation from the server
   useEffect(() => {
+    document.title = "Conversation";
+
     const apiCall = async () => {
       // Send a GET request to the server to get the conversation
       const response = await fetch(`/Gallery/conversation/${conversationId}`, {
@@ -32,7 +34,7 @@ const Conversation = () => {
       if (response.status === 401) {
         await refreshToken(); // Refresh the access token
         // Resend the request with the new access token
-        response = apiCall();
+        response = await apiCall();
       }
 
       // If the response is not received, throw an error

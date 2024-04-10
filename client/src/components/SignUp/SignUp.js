@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import "./SignUp.css";
 import { Link, useNavigate } from "react-router-dom";
 
@@ -12,6 +12,10 @@ const SignUpPage = () => {
   const [errorMessage, setErrorMessage] = useState("");
 
   const navigate = useNavigate();
+
+  useEffect(() => {
+    document.title = "Sign Up";
+  }, []);
 
   const handleSubmit = async (event) => {
     event.preventDefault(); // Prevent the default form submission
