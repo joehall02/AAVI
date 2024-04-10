@@ -23,7 +23,8 @@ partial_account_model = account_ns.model('Partial Account', {
     'id': fields.Integer(),
     'username': fields.String(),
     'name': fields.String(),
-    'role': fields.String()
+    'role': fields.String(),
+    'has_api_key': fields.Boolean()
 })
 
 api_key_model = account_ns.model('API Key', {
@@ -38,12 +39,17 @@ class AccountResource(Resource):
     # Get an account by ID and return the account's username, password, and API key
     # Used to get account details in account page
     @account_ns.marshal_with(partial_account_model)
-    #@jwt_required() # Protect this endpoint with JWT
+    @jwt_required() # Protect this endpoint with JWT
     def get(self, account_id):
         db_account = Account.query.get(account_id)
 
         if db_account is None:
             abort(404, 'Account not found')
+
+        if(db_account.api_key is not None):
+            db_account.has_api_key = True
+        else:
+            db_account.has_api_key = False
 
             
         return db_account
@@ -51,7 +57,7 @@ class AccountResource(Resource):
     # Create a new API key for the account
     # Used to add a new API key in account page
     @account_ns.marshal_with(api_key_model)
-    #@jwt_required() # Protect this endpoint with JWT
+    @jwt_required() # Protect this endpoint with JWT
     def post(self, account_id):
 
         db_api_key = APIKey.query.filter_by(account_id=account_id).first()
@@ -70,7 +76,7 @@ class AccountResource(Resource):
         
     # Delete an account by ID
     # Used to delete account in account page
-    #@jwt_required() # Protect this endpoint with JWT
+    @jwt_required() # Protect this endpoint with JWT
     def delete(self, account_id):
         account = Account.query.get(account_id)
 
@@ -85,6 +91,7 @@ class AccountResource(Resource):
     
     # Update account details (Username) by ID
     @account_ns.expect(account_model)
+    @jwt_required()
     def put(self, account_id):
         db_account = Account.query.get(account_id)
         
@@ -114,6 +121,7 @@ class AccountResource(Resource):
     # Update account details (name) by ID
     @account_ns.marshal_with(account_model)
     @account_ns.expect(account_model)
+    @jwt_required()
     def put(self, account_id):
         db_account = Account.query.get(account_id)
         data = request.get_json()
@@ -132,6 +140,7 @@ class AccountResource(Resource):
     # Update account details (password) by ID
     @account_ns.marshal_with(account_model)
     @account_ns.expect(account_model)
+    @jwt_required()
     def put(self, account_id):
         db_account = Account.query.get(account_id)
         data = request.get_json()
@@ -149,6 +158,7 @@ class AccountResource(Resource):
     # Update account details (password) by ID
     @account_ns.marshal_with(account_model)
     @account_ns.expect(account_model)
+    @jwt_required()
     def put(self, account_id):
         try:
             db_api_key = APIKey.query.filter_by(account_id=account_id).first()

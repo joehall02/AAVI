@@ -191,7 +191,7 @@ def get_last_message_number(conversation_id):
 @image_analysis_ns.route('/upload/<int:account_id>', methods=['POST'])
 class ImageAnalysisResource(Resource):
     
-    #@jwt_required() # Protect this endpoint with JWT
+    @jwt_required() # Protect this endpoint with JWT
     def post(self, account_id):
 
         # Get the account from the database
@@ -271,8 +271,8 @@ class ImageAnalysisResource(Resource):
 # Define a resource for the '/scan_result' endpoint
 @image_analysis_ns.route('/scan_result/<int:account_id>', methods=['GET'])
 class ImageAnalysisResource(Resource):
-    #@jwt_required() # Protect this endpoint with JWT
     @image_analysis_ns.marshal_with(conversation_model)
+    @jwt_required() # Protect this endpoint with JWT
     def get(self, account_id):
         
         # Get account from database
@@ -291,8 +291,8 @@ class ImageAnalysisResource(Resource):
 # Define a resource for the '/message' endpoint
 @image_analysis_ns.route('/message/<int:conversation_id>', methods=['POST', 'GET'])
 class ImageAnalysisResource(Resource):
-    #@jwt_required() # Protect this endpoint with JWT
     @image_analysis_ns.marshal_with(message_model)
+    @jwt_required() # Protect this endpoint with JWT
     def post(self, conversation_id):
         data = request.get_json()
 
@@ -342,6 +342,7 @@ class ImageAnalysisResource(Resource):
         return new_message, 201
 
     @image_analysis_ns.marshal_with(message_model)
+    @jwt_required() # Protect this endpoint with JWT
     def get(self, conversation_id):
         
         # Get the latest AI message for the conversation

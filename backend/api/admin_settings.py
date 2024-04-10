@@ -27,14 +27,14 @@ post_account_model = admin_settings_ns.model('Account', {
 @admin_settings_ns.route('/', methods=['GET', 'POST']) 
 class AdminSettingsResource(Resource):
     @admin_settings_ns.marshal_list_with(get_account_model)
-    #@jwt_required() # Protect this endpoint with JWT
+    @jwt_required() # Protect this endpoint with JWT
     def get(self):
         accounts = Account.query.all()
         
         return accounts
     
     @admin_settings_ns.expect(post_account_model)
-    #@jwt_required() # Protect this endpoint with JWT
+    @jwt_required() # Protect this endpoint with JWT
     def post(self):
         data = request.get_json()
         
@@ -59,7 +59,7 @@ class AdminSettingsResource(Resource):
 @admin_settings_ns.route('/<string:username>', methods=['GET'])
 class AdminSettingResource(Resource):
     @admin_settings_ns.marshal_with(get_account_model)
-    #@jwt_required() # Protect this endpoint with JWT
+    @jwt_required() # Protect this endpoint with JWT
     def get(self, username):
         account = Account.query.filter_by(username=username).first()
         
@@ -70,7 +70,7 @@ class AdminSettingResource(Resource):
 # Used to delete a specific account on admin settings page
 @admin_settings_ns.route('/<int:account_id>', methods=['DELETE'])
 class AdminSettingResource(Resource):
-    #@jwt_required() # Protect this endpoint with JWT
+    @jwt_required() # Protect this endpoint with JWT
     def delete(self, account_id):
         account = Account.query.get(account_id)
 

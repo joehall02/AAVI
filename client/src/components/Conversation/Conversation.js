@@ -1,9 +1,11 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useContext } from "react";
+import UserContext from "../UserContext/UserContext";
 import { useLocation } from "react-router-dom";
 import Message from "../Message/Message";
 import "./Conversation.css";
 
 const Conversation = () => {
+  const { refreshToken } = useContext(UserContext); // Get the refreshToken function from the UserContext
   const location = useLocation();
   const conversationId = location.state.conversationid;
 
@@ -12,9 +14,26 @@ const Conversation = () => {
 
   // Use the useEffect hook to fetch the conversation from the server
   useEffect(() => {
+    const apiCall = async () => {
+      // Send a GET request to the server to get the conversation
+      const response = await fetch(`/Gallery/conversation/${conversationId}`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("access_token")}`, // Set the Authorization header with the access token
+        },
+      });
+
+      return response;
+    };
+
     const fetchData = async () => {
       // Send a GET request to the server to get the conversation
-      const response = await fetch(`/Gallery/conversation/${conversationId}`);
+      let response = await apiCall();
+
+      if (response.status === 401) {
+        await refreshToken(); // Refresh the access token
+        // Resend the request with the new access token
+        response = apiCall();
+      }
 
       // If the response is not received, throw an error
       if (!response.ok) {

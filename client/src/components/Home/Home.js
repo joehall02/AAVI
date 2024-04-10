@@ -1,12 +1,11 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
+import UserContext from "../UserContext/UserContext";
 import { useNavigate } from "react-router-dom";
 import "./Home.css";
 import "../../styles/global.css";
 
-// Create a variable that contains an account id
-const accountId = 2;
-
 const HomePage = () => {
+  const { user, refreshToken } = useContext(UserContext); // Get the user state from the UserContext
   const [isLoading, setIsLoading] = useState(false); // defining a state variable isLoading and a function setIsLoading to store the loading state of the page
   const [fileName, setFileName] = useState(""); // defining a state variable fileName and a function setFileName to store the name of the file uploaded by the user
   const [file, setFile] = useState(null); // defining a state variable file and a function setFile to store the file uploaded by the user
@@ -32,12 +31,28 @@ const HomePage = () => {
     const formData = new FormData(); // Create a new FormData object
     formData.append("photo", file); // Append the file to the FormData object
 
-    try {
+    const apiCall = async () => {
       // Send a POST request to the server with the file
-      const response = await fetch(`/Image Analysis/upload/${accountId}`, {
+      const response = await fetch(`/Image Analysis/upload/${user.accountId}`, {
         method: "POST",
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("access_token")}`, // Set the Authorization header with the access token
+        },
         body: formData,
       });
+
+      return response;
+    };
+
+    try {
+      // Send a POST request to the server with the file
+      let response = await apiCall();
+
+      if (response.status === 401) {
+        await refreshToken(); // Refresh the access token
+        // Resend the request with the new access token
+        response = apiCall();
+      }
 
       // If the response is not received, throw an error
       if (!response.ok) {
@@ -48,7 +63,7 @@ const HomePage = () => {
       setIsLoading(false); // Set the loading state to false
 
       // Navigate to the scan results, passing the account id as a parameter
-      navigate("/scan_results", { state: { accountId } });
+      navigate("/scan_results");
     } catch (error) {
       setIsLoading(false); // Set the loading state to false
       setErrorMessage(error.message); // Set the error message

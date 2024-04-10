@@ -1,20 +1,53 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
+import UserContext from "../UserContext/UserContext";
 import "./Login.css";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 const LoginPage = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
 
+  const { setUser } = useContext(UserContext);
+
   const [errorMessage, setErrorMessage] = useState("");
 
-  const handleSubmit = (event) => {
+  const navigate = useNavigate();
+
+  const handleSubmit = async (event) => {
     event.preventDefault();
     setErrorMessage("");
 
     if (!username || !password) {
       setErrorMessage("Please fill in all fields.");
       return;
+    }
+
+    try {
+      // Send a POST request to the server to login
+      const response = await fetch("/Authentification/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ username, password }),
+      });
+
+      const data = await response.json();
+      if (response.ok) {
+        // Store the tokens in the local storage
+        localStorage.setItem("access_token", data.access_token);
+        localStorage.setItem("refresh_token", data.refresh_token);
+
+        // Set the user state with the user data
+        setUser(data.user);
+
+        // Redirect to the home page
+        navigate("/home_page");
+      } else {
+        setErrorMessage(data.message);
+      }
+    } catch (error) {
+      setErrorMessage("An error has occurred. Please try again.");
     }
   };
 

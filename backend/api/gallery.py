@@ -41,9 +41,9 @@ conversation_model = gallery_ns.model('Conversation', {
 class GalleryResource(Resource):
     # Get all conversations by ID
     @gallery_ns.marshal_list_with(partial_conversations_model)
-    #@jwt_required() # Protect this endpoint with JWT
+    @jwt_required() # Protect this endpoint with JWT
     def get(self, account_id):
-        conversations = Conversation.query.filter_by(account_id=account_id).all()
+        conversations = Conversation.query.filter_by(account_id=account_id).order_by(Conversation.id.desc()).all()
 
         return conversations
 
@@ -53,7 +53,7 @@ class GalleryResource(Resource):
 class ConversationResource(Resource):
     # Get a conversation by ID
     @gallery_ns.marshal_with(conversation_model)
-    #@jwt_required() # Protect this endpoint with JWT
+    @jwt_required() # Protect this endpoint with JWT
     def get(self, conversation_id):
         conversation = Conversation.query.get(conversation_id)
         messages = Message.query.filter_by(conversation_id=conversation_id).all()
@@ -63,12 +63,3 @@ class ConversationResource(Resource):
 
         return conversation
     
-
-@gallery_ns.route('/conversation/hello', methods=['GET'])
-class ConversationResource(Resource):
-
-    #@jwt_required() # Protect this endpoint with JWT
-    def get(self):
-
-
-        return {'message': 'Hello World!'}

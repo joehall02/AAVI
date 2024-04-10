@@ -1,12 +1,11 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import "../../styles/global.css";
+import UserContext from "../UserContext/UserContext";
 import { useNavigate } from "react-router-dom";
 import "./Account.css";
 
-// Create a variable that contains an account id
-const accountId = 2;
-
 const AccountPage = () => {
+  const { user, refreshToken } = useContext(UserContext); // Get the user state from the UserContext
   const [account, setAccount] = useState(null); // State to store the account data received from the server
   const [isLoading, setIsLoading] = useState(true); // State to store the loading state
 
@@ -78,15 +77,29 @@ const AccountPage = () => {
       return;
     }
 
-    try {
+    const apiCall = async () => {
       // Send a PUT request to the server to update the username
-      const response = await fetch(`/Account/username/${accountId}`, {
+      const response = await fetch(`/Account/username/${user.accountId}`, {
         method: "PUT",
         headers: {
+          Authorization: `Bearer ${localStorage.getItem("access_token")}`, // Set the Authorization header with the access token
           "Content-Type": "application/json",
         },
         body: JSON.stringify({ username: newUsername }),
       });
+
+      return response;
+    };
+
+    try {
+      // Send a PUT request to the server with the new username
+      let response = await apiCall();
+
+      if (response.status === 401) {
+        await refreshToken(); // Refresh the access token
+        // Resend the request with the new access token
+        response = apiCall();
+      }
 
       if (!response.ok) {
         const data = await response.json();
@@ -105,15 +118,29 @@ const AccountPage = () => {
       setErrorMessage("Username cannot be empty");
       return;
     }
-    try {
+
+    const apiCall = async () => {
       // Send a PUT request to the server to update the name
-      const response = await fetch(`/Account/name/${accountId}`, {
+      const response = await fetch(`/Account/name/${user.accountId}`, {
         method: "PUT",
         headers: {
+          Authorization: `Bearer ${localStorage.getItem("access_token")}`, // Set the Authorization header with the access token
           "Content-Type": "application/json",
         },
         body: JSON.stringify({ name: newName }),
       });
+
+      return response;
+    };
+
+    try {
+      let response = await apiCall();
+
+      if (response.status === 401) {
+        await refreshToken(); // Refresh the access token
+        // Resend the request with the new access token
+        response = apiCall();
+      }
 
       if (!response.ok) {
         const data = await response.json();
@@ -133,15 +160,29 @@ const AccountPage = () => {
       setErrorMessage("Password cannot be empty");
       return;
     }
-    try {
+
+    const apiCall = async () => {
       // Send a PUT request to the server to update the password
-      const response = await fetch(`/Account/password/${accountId}`, {
+      const response = await fetch(`/Account/password/${user.accountId}`, {
         method: "PUT",
         headers: {
+          Authorization: `Bearer ${localStorage.getItem("access_token")}`, // Set the Authorization header with the access token
           "Content-Type": "application/json",
         },
         body: JSON.stringify({ password: newPassword }),
       });
+
+      return response;
+    };
+
+    try {
+      let response = await apiCall();
+
+      if (response.status === 401) {
+        await refreshToken(); // Refresh the access token
+        // Resend the request with the new access token
+        response = apiCall();
+      }
 
       if (!response.ok) {
         const data = await response.json();
@@ -162,15 +203,44 @@ const AccountPage = () => {
       setErrorMessage("OpenAI API Key cannot be empty");
       return;
     }
+
+    const apiCall = async () => {
+      // Check if the account has an API key, if it does, send a PUT request to update the API key, else send a POST request to create the API key
+      if (account.has_api_key) {
+        // Send a PUT request to the server to update the OpenAI API key
+        const response = await fetch(`/Account/api_key/${user.accountId}`, {
+          method: "PUT",
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("access_token")}`, // Set the Authorization header with the access token
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ api_key: newOpenAIKey }),
+        });
+
+        return response;
+      } else {
+        // Send a POST request to the server to create the OpenAI API key
+        const response = await fetch(`/Account/${user.accountId}`, {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("access_token")}`, // Set the Authorization header with the access token
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ api_key: newOpenAIKey, account_id: user.accountId }),
+        });
+
+        return response;
+      }
+    };
+
     try {
-      // Send a PUT request to the server to update the OpenAI API key
-      const response = await fetch(`/Account/api_key/${accountId}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ api_key: newOpenAIKey }),
-      });
+      let response = await apiCall();
+
+      if (response.status === 401) {
+        await refreshToken(); // Refresh the access token
+        // Resend the request with the new access token
+        response = apiCall();
+      }
 
       if (!response.ok) {
         const data = await response.json();
@@ -191,11 +261,26 @@ const AccountPage = () => {
 
   // Function to handle the delete account button click event
   const handleDeleteAccount = async () => {
-    try {
+    const apiCall = async () => {
       // Send a DELETE request to the server to delete the account
-      const response = await fetch(`/Account/${accountId}`, {
+      const response = await fetch(`/Account/${user.accountId}`, {
         method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("access_token")}`, // Set the Authorization header with the access token
+        },
       });
+
+      return response;
+    };
+
+    try {
+      let response = await apiCall();
+
+      if (response.status === 401) {
+        await refreshToken(); // Refresh the access token
+        // Resend the request with the new access token
+        response = apiCall();
+      }
 
       if (!response.ok) {
         const data = await response.json();
@@ -211,9 +296,26 @@ const AccountPage = () => {
   };
 
   useEffect(() => {
+    const apiCall = async () => {
+      // Send a GET request to the server to get the account data
+      const response = await fetch(`/Account/${user.accountId}`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("access_token")}`, // Set the Authorization header with the access token
+        },
+      });
+
+      return response;
+    };
+
     const fetchData = async () => {
       // Send a GET request to the server to get the account data
-      const response = await fetch(`/Account/${accountId}`);
+      let response = await apiCall();
+
+      if (response.status === 401) {
+        await refreshToken(); // Refresh the access token
+        // Resend the request with the new access token
+        response = apiCall();
+      }
 
       // If the response is not received, throw an error
       if (!response.ok) {

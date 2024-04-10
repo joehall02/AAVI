@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
+import UserContext from "../UserContext/UserContext";
 import "./Settings.css";
 
-const accountId = 2;
-
 const Settings = () => {
+  const { user, refreshToken } = useContext(UserContext); // Get the user state from the UserContext
   const [isAdmin, setIsAdmin] = useState(true); // State to check if the user is an admin
   const [isLoading, setIsLoading] = useState(true); // State to check if the data is loading
   const [users, setUsers] = useState([]); // State to store the users data
@@ -19,9 +19,38 @@ const Settings = () => {
   const [errorMessage, setErrorMessage] = useState(""); // State to store the error message
 
   useEffect(() => {
+    const loggedInUserApiCall = async () => {
+      // Fetch the account data
+      const response = await fetch(`/Account/${user.accountId}`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("access_token")}`, // Set the Authorization header with the access token
+        },
+      });
+
+      return response;
+    };
+
+    const accountsApiCall = async () => {
+      // Fetch the users data for all accounts in the database
+      const usersResponse = await fetch("/Admin Settings/", {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("access_token")}`, // Set the Authorization header with the access token
+        },
+      });
+
+      return usersResponse;
+    };
+
     const fetchData = async () => {
       // Fetch the account data
-      const response = await fetch(`/Account/${accountId}`);
+      let response = await loggedInUserApiCall();
+
+      if (response.status === 401) {
+        await refreshToken(); // Refresh the access token
+        // Resend the request with the new access token
+        response = loggedInUserApiCall();
+      }
+
       if (!response.ok) {
         const message = `An error has occured: ${response.status}`;
         throw new Error(message);
@@ -34,7 +63,14 @@ const Settings = () => {
       }
 
       // Fetch the users data for all accounts in the database
-      const usersResponse = await fetch("/Admin Settings/");
+      const usersResponse = await accountsApiCall();
+
+      if (usersResponse.status === 401) {
+        await refreshToken(); // Refresh the access token
+        // Resend the request with the new access token
+        usersResponse = accountsApiCall();
+      }
+
       if (!usersResponse.ok) {
         const message = `An error has occured: ${usersResponse.status}`;
         throw new Error(message);
@@ -62,16 +98,29 @@ const Settings = () => {
       return;
     }
 
-    try {
+    const apiCall = async () => {
       // Send a POST request to the server with the user data
-      console.log({ name: name, username: username, password: password, role: role });
       const response = await fetch("/Admin Settings/", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("access_token")}`, // Set the Authorization header with the access token
         },
         body: JSON.stringify({ name: name, username: username, password: password, role: role }),
       });
+
+      return response;
+    };
+
+    try {
+      // Send a POST request to the server with the user data
+      let response = await apiCall();
+
+      if (response.status === 401) {
+        await refreshToken(); // Refresh the access token
+        // Resend the request with the new access token
+        response = apiCall();
+      }
 
       // If the response is not received, throw an error
       if (!response.ok) {
@@ -93,11 +142,26 @@ const Settings = () => {
   };
 
   const handleDelete = async (userId) => {
-    try {
+    const apiCall = async () => {
       // Delete the user
       const response = await fetch(`/Admin Settings/${userId}`, {
         method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("access_token")}`, // Set the Authorization header with the access token
+        },
       });
+    };
+
+    try {
+      // Delete the user
+      let response = await apiCall();
+
+      if (response.status === 401) {
+        await refreshToken(); // Refresh the access token
+        // Resend the request with the new access token
+        response = apiCall();
+      }
+
       if (!response.ok) {
         const message = `An error has occured: ${response.status}`;
         throw new Error(message);

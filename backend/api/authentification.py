@@ -62,7 +62,10 @@ class LoginResource(Resource):
             refresh_token = create_refresh_token(identity=db_user.username)
 
             # Return the tokens
-            return {'access _token': access_token, 'refresh_token': refresh_token}, 200
+            return {'access_token': access_token, 'refresh_token': refresh_token, 'user': {
+                'accountId': db_user.id,
+                'role': db_user.role
+            }}, 200
         else:
             return {'message': 'Invalid credentials'}, 401
  

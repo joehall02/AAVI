@@ -1,12 +1,12 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
+import UserContext from "../UserContext/UserContext";
 import { useNavigate } from "react-router-dom";
 import "../../styles/global.css";
 import GalleryImage from "../GalleryImage/GalleryImage";
 
 const GalleryPage = () => {
+  const { user, refreshToken } = useContext(UserContext); // Get the user state from the UserContext
   const [conversations, setConversations] = useState([]); // State to store the conversation objects received from the server
-
-  const accountId = 2;
 
   const navigate = useNavigate();
 
@@ -18,9 +18,26 @@ const GalleryPage = () => {
 
   // Use the useEffect hook to fetch the data from the server
   useEffect(() => {
+    const apiCall = async () => {
+      // Send a GET request to the server to get all conversations associated with the account
+      const response = await fetch(`/Gallery/${user.accountId}`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("access_token")}`, // Set the Authorization header with the access token
+        },
+      });
+
+      return response;
+    };
+
     const fetchData = async () => {
       // Send a GET request to the server to get all conversations associated with the account
-      const response = await fetch(`/Gallery/${accountId}`);
+      let response = await apiCall();
+
+      if (response.status === 401) {
+        await refreshToken(); // Refresh the access token
+        // Resend the request with the new access token
+        response = apiCall();
+      }
 
       // If the response is not received, throw an error
       if (!response.ok) {

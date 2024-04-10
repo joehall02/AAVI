@@ -1,10 +1,13 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
+import UserContext from "../UserContext/UserContext";
 import { useLocation } from "react-router-dom";
 import Message from "../Message/Message";
 import "./ScanResults.css";
 import "../../styles/global.css";
 
 const ScanResults = () => {
+  const { user, refreshToken } = useContext(UserContext); // Get the user state from the UserContext
+
   const [conversation, setConversation] = useState(null); // State to store the conversation data received from the server
 
   const [input, setInput] = useState(""); // State to store the user input
@@ -13,13 +16,29 @@ const ScanResults = () => {
   const [isLoading, setIsLoading] = useState(false); // State to store the loading state in order to show loading message
 
   const location = useLocation(); // Get the location object from the useLocation hook
-  const accountId = location.state ? location.state.accountId : null; // Get the account id passed from home.js
 
   // Use the useEffect hook to fetch the data from the server
   useEffect(() => {
+    const apiCall = async () => {
+      // Send a GET request to the server to get the scan results
+      const response = await fetch(`/Image Analysis/scan_result/${user.accountId}`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("access_token")}`, // Set the Authorization header with the access token
+        },
+      });
+
+      return response;
+    };
+
     const fetchData = async () => {
       // Send a GET request to the server to get the scan results
-      const response = await fetch(`/Image Analysis/scan_result/${accountId}`);
+      let response = await apiCall();
+
+      if (response.status === 401) {
+        await refreshToken(); // Refresh the access token
+        // Resend the request with the new access token
+        response = apiCall();
+      }
 
       // If the response is not received, throw an error
       if (!response.ok) {
@@ -40,7 +59,6 @@ const ScanResults = () => {
   // Use the useEffect hook to update the messages state with the summary from the server
   useEffect(() => {
     if (conversation) {
-      console.log(conversation.tts_audio_path);
       setMessages([{ isUser: false, text: conversation.summary, audiosrc: conversation.tts_audio_path }]);
     }
   }, [conversation]);
@@ -52,6 +70,31 @@ const ScanResults = () => {
 
   // Function to handle user input when enter key is pressed
   const handleKeyPress = async (e) => {
+    const userMessageApiCall = async () => {
+      // Send a POST request to the server with the user input,
+      await fetch(`Image Analysis/message/${conversation.id}`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("access_token")}`, // Set the Authorization header with the access token
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ content: input }),
+      });
+
+      return;
+    };
+
+    const aiMessageApiCall = async () => {
+      // Send a GET request to the server to get the ai response
+      const response = await fetch(`/Image Analysis/message/${conversation.id}`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("access_token")}`, // Set the Authorization header with the access token
+        },
+      });
+
+      return response;
+    };
+
     // If the enter key is pressed and shift key is not pressed, this allows for line breaks
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault(); // Prevent the default form submission
@@ -64,18 +107,24 @@ const ScanResults = () => {
 
       setInput(""); // Clear the input field
 
-      // Send a POST request to the server with the user input,
-      await fetch(`Image Analysis/message/${conversation.id}`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ content: input }),
-      });
+      // Send a POST request to the server with the user input
+      let userMessageResponse = await userMessageApiCall();
 
-      // Send a GET request to the server to get the ai response
-      const response = await fetch(`/Image Analysis/message/${conversation.id}`);
-      const ai_message = await response.json(); // Get the json data from the response
+      if (userMessageResponse && userMessageResponse.status === 401) {
+        await refreshToken(); // Refresh the access token
+        // Resend the request with the new access token
+        userMessageResponse = userMessageApiCall();
+      }
+
+      let aiMessageResponse = await aiMessageApiCall();
+
+      if (aiMessageResponse && aiMessageResponse.status === 401) {
+        await refreshToken(); // Refresh the access token
+        // Resend the request with the new access token
+        aiMessageResponse = aiMessageApiCall();
+      }
+
+      const ai_message = await aiMessageResponse.json(); // Get the json data from the response
 
       setIsLoading(false); // Hide the loading message
 
@@ -85,7 +134,7 @@ const ScanResults = () => {
   };
 
   // If no data is available or account Id  display a message
-  if (!conversation || !accountId) {
+  if (!conversation || !user.accountId) {
     return <div>No data available</div>;
   }
 
@@ -135,6 +184,7 @@ const ScanResults = () => {
                 onChange={handleInputChange}
                 onKeyDown={handleKeyPress}
                 style={{ backgroundColor: "#808080" }}
+                disabled={isLoading}
               />
             </div>
           </div>
