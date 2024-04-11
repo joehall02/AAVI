@@ -185,7 +185,7 @@ const Settings = () => {
 
   return (
     <div>
-      <div className="d-flex justify-content-center mb-3">
+      <div className="d-flex justify-content-center mb-3" aria-label="Page title">
         <h1 className="fw-bold">Settings</h1>
       </div>
 
@@ -193,10 +193,10 @@ const Settings = () => {
         <div className="d-flex justify-content-center flex-column col-12 col-lg-6 mb-3">
           {/* If the account is an admin, show settings. If not, show access denied */}
           {isAdmin ? (
-            <div className="d-flex flex-column mx-auto col-11 col-lg-12">
+            <div className="d-flex flex-column mx-auto col-11 col-lg-12" aria-label="Admin Settings section">
               {/* Create account window */}
               {isCreateAccountOpen && (
-                <div className="create-account-overlay">
+                <div className="create-account-overlay" aria-label="Create account overlay">
                   <div className="d-flex justify-content-center flex-column col-11 col-lg-6 py-4" style={{ backgroundColor: "#1E1E1E", borderRadius: "5px" }}>
                     <div className="d-flex justify-content-center">
                       <h1>Create Account</h1>
@@ -221,7 +221,11 @@ const Settings = () => {
                               <option value="Admin">Admin</option>
                             </select>
                           </div>
-                          {errorMessage && <p className="text-danger text-center">{errorMessage}</p>}
+                          {errorMessage && (
+                            <p className="text-danger text-center" aria-label="Error message">
+                              {errorMessage}
+                            </p>
+                          )}
                           <button type="submit" className="btn btn-lg btn-primary fw-bold w-100 my-3">
                             Create Account
                           </button>
@@ -241,7 +245,7 @@ const Settings = () => {
                   <i className="bi bi-plus"></i> Add User
                 </button>
               </div>
-              <table className="table mt-3">
+              <table className="table mt-3" aria-label="Users table">
                 <thead>
                   <tr>
                     <th>Username</th>
@@ -266,6 +270,7 @@ const Settings = () => {
                               handleDelete(user.id);
                             }
                           }}
+                          aria-label="Delete user button"
                         >
                           <i className="bi bi-trash"></i>
                         </button>
@@ -276,7 +281,7 @@ const Settings = () => {
               </table>
             </div>
           ) : (
-            <div className="mx-auto">
+            <div className="mx-auto" aria-label="Access Denied">
               <h1 className="text-danger">Access Denied</h1>
             </div>
           )}

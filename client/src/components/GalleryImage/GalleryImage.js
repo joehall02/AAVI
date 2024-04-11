@@ -4,7 +4,7 @@ const GalleryImage = ({ conversation, handleImageClick }) => {
   // Display the image and title of the conversation
   // When the image is clicked, call the handleImageClick function, passing the conversation object as an argument
   return (
-    <div className="col-12 col-md-6 col-lg-4">
+    <div className="col-12 col-md-6 col-lg-4" aria-label="Gallery Image">
       <div className="card mb-4" onClick={() => handleImageClick(conversation)} style={{ cursor: "pointer" }}>
         <div
           style={{

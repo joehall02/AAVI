@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useContext } from "react";
 import UserContext from "../UserContext/UserContext";
-import { useLocation } from "react-router-dom";
 import Message from "../Message/Message";
 import "./ScanResults.css";
 import "../../styles/global.css";
@@ -14,8 +13,6 @@ const ScanResults = () => {
   const [messages, setMessages] = useState([]); // State to store the messages in the chat, initially empty
 
   const [isLoading, setIsLoading] = useState(false); // State to store the loading state in order to show loading message
-
-  const location = useLocation(); // Get the location object from the useLocation hook
 
   // Use the useEffect hook to fetch the data from the server
   useEffect(() => {
@@ -142,12 +139,12 @@ const ScanResults = () => {
 
   return (
     <div>
-      <div className="d-flex justify-content-center">
+      <div className="d-flex justify-content-center" aria-label="Page Title">
         <h1 className="fw-bold">Scan Results</h1>
       </div>
 
       {/* Display the scanned image if data is available */}
-      <div className="d-flex justify-content-center mt-3">
+      <div className="d-flex justify-content-center mt-3" aria-label="Uploaded Image">
         <div className="col-12 col-lg-6 text-center">
           <div className="w-100">
             {conversation && <img src={`http://127.0.0.1:5000/Images/${conversation.image_path}`} className="img-fluid" style={{ maxHeight: "700px", borderRadius: "5px" }} alt="Scanned Image" />}
@@ -167,7 +164,7 @@ const ScanResults = () => {
             {/* Chatbot messages */}
             <div className="d-flex flex-column col-11 col-lg-12 overflow-auto mx-auto" style={{ maxHeight: "620px" }}>
               {/* Conversation title */}
-              <div className="d-flex text-center flex-column py-4 col-12">
+              <div className="d-flex text-center flex-column py-4 col-12" aria-label="Conversation Title">
                 <h5 className="text-white fw-bold mx-auto">{conversation.title}</h5>
               </div>
               {/* Maps all the messages to an array of message components and displays them */}
@@ -177,7 +174,7 @@ const ScanResults = () => {
               {isLoading && <Message isUser={false} text="Loading..." />}
             </div>
             {/* Chatbot input */}
-            <div className="mt-auto col-11 col-lg-12 mb-3 mx-auto">
+            <div className="mt-auto col-11 col-lg-12 mb-3 mx-auto" aria-label="Chatbot Message Input">
               <input
                 type="text"
                 className="form-control text-white"

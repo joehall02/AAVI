@@ -73,7 +73,7 @@ const Conversation = () => {
   }
   return (
     <div>
-      <div className="d-flex justify-content-center mb-3">
+      <div className="d-flex justify-content-center mb-3" aria-label="Page Title">
         <h1 className="fw-bold">Conversation Page</h1>
       </div>
       {/* Conversation container  */}
@@ -83,36 +83,38 @@ const Conversation = () => {
           {/* Conversation content */}
           <div className="d-flex flex-column mx-auto col-11 col-lg-12">
             {/* Conversation title */}
-            <div className="d-flex text-center flex-column py-4">
+            <div className="d-flex text-center flex-column py-4" aria-label="Conversation Title">
               <h5 className="fw-bold mx-auto">{conversation.title}</h5>
             </div>
             {/* Conversation image */}
-            <div className="col-10 mx-auto mb-3">
+            <div className="col-10 mx-auto mb-3" aria-label="Conversation Image">
               <div className="w-100 text-center">
                 <img src={`http://127.0.0.1:5000/Images/${conversation.image_path}`} className="img-fluid" style={{ maxHeight: "700px", borderRadius: "5px" }} alt="Scanned Image" />
               </div>
             </div>
             {/* Date and summary */}
-            <div className="col-10 mx-auto mb-3">
+            <div className="col-10 mx-auto mb-3" aria-label="Date and Summary">
               <p>
                 <strong>Date:</strong> {conversation.date_created}
               </p>
               <p>
                 <strong>Summary:</strong> {conversation.summary}
               </p>
-              <i className="bi bi-soundwave custom-audio-icon" onClick={() => playAudio(conversation.tts_audio_path)}></i>
+              <button style={{ border: "none", background: "none", padding: 0, cursor: "pointer" }} onClick={() => playAudio(conversation.tts_audio_path)} aria-label="Play summary audio">
+                <i className="bi bi-soundwave text-white custom-audio-icon"></i>
+              </button>
             </div>
 
             {/* Chatbot title */}
             {/* If there are no messages, dont show */}
             {conversation.messages && conversation.messages.length > 0 && (
-              <div className="d-flex text-center flex-column py-4 col-12">
+              <div className="d-flex text-center flex-column py-4 col-12" aria-label="Chatbot Title">
                 <h1 className="fw-bold mx-auto">Chatbot</h1>
               </div>
             )}
 
             {/* Chatbot container */}
-            <div className="d-flex flex-column col-11 overflow-auto mx-auto" style={{ maxHeight: "620px" }}>
+            <div className="d-flex flex-column col-11 overflow-auto mx-auto" style={{ maxHeight: "620px" }} aria-label="Chatbot Messages">
               {/* Chatbot messages */}
               {/* Maps all the messages to an array of message components and displays them, checks message type to 
               determine if it is a user message or ai message */}

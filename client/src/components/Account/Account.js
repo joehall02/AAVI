@@ -339,16 +339,16 @@ const AccountPage = () => {
 
   return (
     <div>
-      <div className="d-flex justify-content-center">
+      <div className="d-flex justify-content-center" aria-label="Page Title">
         <h1 className="fw-bold">Account</h1>
       </div>
 
       {/* Account settings container */}
-      <div className="d-flex justify-content-center mx-auto mt-3">
+      <div className="d-flex justify-content-center mx-auto mt-3" aria-label="Account details section">
         <div className="col-10 col-lg-6">
           {/* Delete Account confirmation */}
           {isDeleting && (
-            <div className="delete-overlay">
+            <div className="delete-overlay" aria-label="Confirm account deletion overlay">
               <div className="d-flex justify-content-center">
                 <div className="col-10 col-lg-6 text-center p-4" style={{ backgroundColor: "#1E1E1E", borderRadius: "5px" }}>
                   <h2>Are you sure?</h2>
@@ -373,13 +373,13 @@ const AccountPage = () => {
             </div>
           )}
           {/* Username */}
-          <div className="my-4">
+          <div className="my-4" aria-label="Username section">
             <h3 className="fw-bold">Username:</h3>
             {/* If isEditingUsername is true, show input field and save button. Else, show account account username and edit button */}
             {isEditingUsername ? (
               <div>
                 <div>
-                  <input type="text" onChange={(e) => setNewUsername(e.target.value)} style={{ width: "210px" }} />
+                  <input type="text" onChange={(e) => setNewUsername(e.target.value)} style={{ width: "210px" }} aria-label="Change username field" />
                 </div>
                 <div className="mt-2">
                   <button className="btn btn-primary fw-bold" onClick={handleSaveUsername} style={{ width: "100px" }}>
@@ -409,16 +409,21 @@ const AccountPage = () => {
                 </div>
               </div>
             )}
-            {errorMessage && isEditingUsername && <p className="text-danger">{errorMessage}</p>} {/* If there is an error, display it */}
+            {errorMessage && isEditingUsername && (
+              <p className="text-danger" aria-label="Error message">
+                {errorMessage}
+              </p>
+            )}
+            {/* If there is an error, display it */}
           </div>
           {/* Name */}
-          <div className="my-4">
+          <div className="my-4" aria-label="Name section">
             <h3 className="fw-bold">Name:</h3>
             {/* If isEditingName is true, show input field and save button. Else, show account account name and edit button */}
             {isEditingName ? (
               <div>
                 <div>
-                  <input type="text" onChange={(e) => setNewName(e.target.value)} style={{ width: "210px" }} />
+                  <input type="text" onChange={(e) => setNewName(e.target.value)} style={{ width: "210px" }} aria-label="Change name field" />
                 </div>
                 <div className="mt-2">
                   <button className="btn btn-primary fw-bold" onClick={handleSaveName} style={{ width: "100px" }}>
@@ -448,16 +453,21 @@ const AccountPage = () => {
                 </div>
               </div>
             )}
-            {errorMessage && isEditingName && <p className="text-danger">{errorMessage}</p>} {/* If there is an error, display it */}
+            {errorMessage && isEditingName && (
+              <p className="text-danger" aria-label="Error message">
+                {errorMessage}
+              </p>
+            )}
+            {/* If there is an error, display it */}
           </div>
           {/* Password */}
-          <div className="my-4">
+          <div className="my-4" aria-label="Password section">
             <h3 className="fw-bold">Password:</h3>
             {/* If isEditingPassword is true, show input field and save button. Else, show <p> tag and edit button */}
             {isEditingPassword ? (
               <div>
                 <div>
-                  <input type="password" onChange={(e) => setNewPassword(e.target.value)} style={{ width: "210px" }} />
+                  <input type="password" onChange={(e) => setNewPassword(e.target.value)} style={{ width: "210px" }} aria-label="Change password field" />
                 </div>
                 <div className="mt-2">
                   <button className="btn btn-primary fw-bold" onClick={handleSavePassword} style={{ width: "100px" }}>
@@ -487,16 +497,21 @@ const AccountPage = () => {
                 </div>
               </div>
             )}
-            {errorMessage && isEditingPassword && <p className="text-danger">{errorMessage}</p>} {/* If there is an error, display it */}
+            {errorMessage && isEditingPassword && (
+              <p className="text-danger" aria-label="Error message">
+                {errorMessage}
+              </p>
+            )}
+            {/* If there is an error, display it */}
           </div>
           {/* API Key */}
-          <div className="my-4">
+          <div className="my-4" aria-label="API key section">
             <h3 className="fw-bold">OpenAI API Key:</h3>
             {/* If isEditingOpenAIKey is true, show input field and save button. Else, show <p> tag and edit button */}
             {isEditingOpenAIKey ? (
               <div>
                 <div>
-                  <input type="text" onChange={(e) => setNewOpenAIKey(e.target.value)} style={{ width: "210px" }} />
+                  <input type="text" onChange={(e) => setNewOpenAIKey(e.target.value)} style={{ width: "210px" }} aria-label="Change api key field" />
                 </div>
                 <div className="mt-2">
                   <button className="btn btn-primary fw-bold" onClick={handleSaveOpenAIKey} style={{ width: "100px" }}>
@@ -526,10 +541,15 @@ const AccountPage = () => {
                 </div>
               </div>
             )}
-            {errorMessage && isEditingOpenAIKey && <p className="text-danger">{errorMessage}</p>} {/* If there is an error, display it */}
+            {errorMessage && isEditingOpenAIKey && (
+              <p className="text-danger" aria-label="Error message">
+                {errorMessage}
+              </p>
+            )}
+            {/* If there is an error, display it */}
           </div>
           {/* Delete Account */}
-          <div className="my-4">
+          <div className="my-4" aria-label="Remove account section">
             <h3 className="fw-bold">Remove Account</h3>
             <div className="mt-2">
               <button
@@ -543,7 +563,12 @@ const AccountPage = () => {
                 Delete Account
               </button>
             </div>
-            {errorMessage && isDeleting && <p className="text-danger">{errorMessage}</p>} {/* If there is an error, display it */}
+            {errorMessage && isDeleting && (
+              <p className="text-danger" aria-label="Error message">
+                {errorMessage}
+              </p>
+            )}
+            {/* If there is an error, display it */}
           </div>
         </div>
       </div>

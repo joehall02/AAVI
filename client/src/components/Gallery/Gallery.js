@@ -59,11 +59,11 @@ const GalleryPage = () => {
 
   return (
     <div>
-      <div className="d-flex justify-content-center mb-3">
+      <div className="d-flex justify-content-center mb-3" aria-label="Page Title">
         <h1 className="fw-bold">Gallery</h1>
       </div>
 
-      <div className="row">
+      <div className="row" aria-label="Gallery Images">
         {/* Map through the conversations and display the images */}
         {conversations.map((conversation, index) => (
           <GalleryImage key={index} conversation={conversation} handleImageClick={handleImageClick} />
@@ -71,7 +71,7 @@ const GalleryPage = () => {
 
         {/* If no conversation are found, return error */}
         {conversations.length === 0 && (
-          <div className="d-flex justify-content-center">
+          <div className="d-flex justify-content-center" aria-label="Error Message">
             <p>No images found.</p>
           </div>
         )}

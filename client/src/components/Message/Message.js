@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import React, { useRef } from "react";
 import "./Message.css";
 
 const Message = ({ isUser, text, audiosrc }) => {
@@ -18,12 +18,17 @@ const Message = ({ isUser, text, audiosrc }) => {
 
   const messageStyle = isUser ? "user-message" : "chatbot-message";
   const justifyContent = isUser ? "justify-content-end" : "justify-content-start";
+  const messageLabel = isUser ? "User Message" : "Chatbot Message";
 
   return (
-    <div className={`d-flex ${justifyContent}`}>
+    <div className={`d-flex ${justifyContent}`} aria-label={`${messageLabel}`}>
       <div className={`${messageStyle} text-white`}>
         <p>{text}</p>
-        {audiosrc && <i className="bi bi-soundwave custom-audio-icon" onClick={playAudio} />}
+        {audiosrc && (
+          <button style={{ border: "none", background: "none", padding: 0, cursor: "pointer" }} onClick={playAudio} aria-label="Play message audio">
+            <i className="bi bi-soundwave text-white custom-audio-icon" />
+          </button>
+        )}
       </div>
     </div>
   );

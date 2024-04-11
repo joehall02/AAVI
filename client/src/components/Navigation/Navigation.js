@@ -17,9 +17,14 @@ const Navigation = () => {
   return (
     <Navbar bg="black" variant="dark" expand="md">
       <Container>
-        <Navbar.Brand as={Link} to="/home_page" className="text-white fs-4 fw-bold">
-          AAVI
-        </Navbar.Brand>
+        {user ? (
+          <Navbar.Brand as={Link} to="/home_page" className="text-white fs-4 fw-bold">
+            AAVI
+          </Navbar.Brand>
+        ) : (
+          <Navbar.Brand className="text-white fs-4 fw-bold">AAVI</Navbar.Brand>
+        )}
+
         {user && (
           <Navbar.Toggle onClick={toggle} aria-controls="basic-navbar-nav" className="custom-toggler">
             {isOpen ? <i class="bi bi-x-lg custom-menu-style" /> : <i class="bi bi-list custom-menu-style" />}

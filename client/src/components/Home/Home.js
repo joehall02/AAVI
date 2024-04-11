@@ -76,13 +76,17 @@ const HomePage = () => {
 
   return (
     <div>
-      {isLoading && <div className="loading-overlay">Loading...</div>}
-      <div className="d-flex justify-content-center">
+      {isLoading && (
+        <div className="loading-overlay" aria-label="Loading Message">
+          Loading...
+        </div>
+      )}
+      <div className="d-flex justify-content-center" aria-label="Page Title">
         <h1 className="fw-bold">Home</h1>
       </div>
 
-      <label className="d-flex flex-column justify-content-center align-items-center mt-3 text-white image-input">
-        <input type="file" accept="image/*" capture="camera" className="d-none" onChange={handleFileChange} />
+      <label className="d-flex flex-column justify-content-center align-items-center mt-3 text-white image-input" aria-label="Image input">
+        <input type="file" accept="image/*" capture="camera" className="d-none" onChange={handleFileChange} aria-label="File Input for image" />
         <i className="bi bi-camera-fill" style={{ fontSize: 60 }}></i>
         <p className="fw-bold">Tap to scan image with your camera!</p>
         <p className="fw-bold text-center">{fileName}</p>
@@ -90,12 +94,18 @@ const HomePage = () => {
 
       <div className="d-flex justify-content-center">
         <div className="col-12 col-md-6">
-          <button className="btn btn-lg btn-primary mt-3 fw-bold w-100" onClick={handleButtonClick}>
+          <button className="btn btn-lg btn-primary mt-3 fw-bold w-100" onClick={handleButtonClick} aria-label="Scan Results button">
             Results
           </button>
         </div>
       </div>
-      <div className="d-flex justify-content-center">{errorMessage && <p className="text-danger">{errorMessage}</p>}</div>
+      <div className="d-flex justify-content-center">
+        {errorMessage && (
+          <p className="text-danger" aria-label="Error Message">
+            {errorMessage}
+          </p>
+        )}
+      </div>
     </div>
   );
 };

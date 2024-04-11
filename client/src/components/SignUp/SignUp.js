@@ -58,7 +58,7 @@ const SignUpPage = () => {
 
   return (
     <div>
-      <div className="d-flex justify-content-center">
+      <div className="d-flex justify-content-center" aria-label="Sign up section">
         <div className="d-flex justify-content-center flex-column col-12 col-lg-6 text-white mb-3 py-3" style={{ backgroundColor: "#1E1E1E", borderRadius: "5px", height: "600px" }}>
           <div className="d-flex justify-content-center my-4">
             <h1 className="fw-bold">Sign Up</h1>
@@ -78,7 +78,11 @@ const SignUpPage = () => {
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
                 />
-                {errorMessage && <p className="text-danger text-center">{errorMessage}</p>}
+                {errorMessage && (
+                  <p className="text-danger text-center" aria-label="Error message">
+                    {errorMessage}
+                  </p>
+                )}
                 <button type="submit" className="btn btn-lg btn-primary fw-bold w-100 my-3">
                   Sign Up
                 </button>
