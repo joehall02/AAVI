@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 import "./Account.css";
 
 const AccountPage = () => {
-  const { user, refreshToken } = useContext(UserContext); // Get the user state from the UserContext
+  const { user, refreshToken, logout } = useContext(UserContext); // Get the user state from the UserContext
   const [account, setAccount] = useState(null); // State to store the account data received from the server
   const [isLoading, setIsLoading] = useState(true); // State to store the loading state
 
@@ -287,6 +287,8 @@ const AccountPage = () => {
         setErrorMessage(data.message);
         throw new Error(data.message);
       }
+
+      logout(); // Call the logout function from the UserContext
 
       // Redirect to the login page
       navigate("/");

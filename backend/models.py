@@ -28,12 +28,6 @@ class Account(db.Model):
     def delete(self):
         db.session.delete(self)
         db.session.commit()
-
-    # Method to update the account in the database
-    def update(self, new_username, new_password):
-        self.username = new_username
-        self.password = new_password        
-        db.session.commit()
     
 # APIKey model
 class APIKey(db.Model):
@@ -50,11 +44,7 @@ class APIKey(db.Model):
     def save(self):
         db.session.add(self)
         db.session.commit()
-    
-    # Method to delete the API key from the database
-    def delete(self):
-        db.session.delete(self)
-        db.session.commit()
+
     
 # Conversation model    
 class Conversation(db.Model):
