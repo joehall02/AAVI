@@ -31,7 +31,7 @@ class AdminSettingsResource(Resource):
     def get(self):
         accounts = Account.query.all()
         
-        return accounts
+        return accounts, 200
     
     @admin_settings_ns.expect(post_account_model)
     #@jwt_required() # Protect this endpoint with JWT
@@ -63,7 +63,7 @@ class AdminSettingResource(Resource):
     def get(self, username):
         account = Account.query.filter_by(username=username).first()
         
-        return account
+        return account, 200
     
 
 # Define a resource for the '/admin_settings/<int:account_id>' endpoint

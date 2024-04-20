@@ -45,7 +45,7 @@ class GalleryResource(Resource):
     def get(self, account_id):
         conversations = Conversation.query.filter_by(account_id=account_id).order_by(Conversation.id.desc()).all()
 
-        return conversations
+        return conversations, 200
 
 # Define a resource for the '/conversation/int:conversation_id' endpoint
 # Used to get the full conversation details by ID
@@ -56,10 +56,12 @@ class ConversationResource(Resource):
     @jwt_required() # Protect this endpoint with JWT
     def get(self, conversation_id):
         conversation = Conversation.query.get(conversation_id)
+        if conversation is None:
+            return {"message": "Conversation not found"}, 404
+
         messages = Message.query.filter_by(conversation_id=conversation_id).all()
 
         conversation.messages = messages
 
 
-        return conversation
-    
+        return conversation, 200

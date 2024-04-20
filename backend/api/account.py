@@ -52,7 +52,7 @@ class AccountResource(Resource):
             db_account.has_api_key = False
 
             
-        return db_account
+        return db_account, 200
     
     # Create a new API key for the account
     # Used to add a new API key in account page

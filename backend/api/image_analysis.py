@@ -285,7 +285,7 @@ class ImageAnalysisResource(Resource):
         if conversation is None:
             return {'message': 'No conversations found'}, 404
         
-        return conversation
+        return conversation, 200
 
         
 # Define a resource for the '/message' endpoint
@@ -300,6 +300,9 @@ class ImageAnalysisResource(Resource):
 
         # Get the conversation from the database
         conversation = Conversation.query.get(conversation_id)
+
+        if conversation is None:
+            return {'message': 'Conversation not found'}, 404
 
         # Create an OpenAI client using the user's API key
         client = create_openai_client(conversation.account)
