@@ -13,6 +13,7 @@ from api.admin_settings import admin_settings_ns
 from api.audio import audio_ns
 from api.images import images_ns
 from flask_cors import CORS
+import os
 
 
 def create_app(config=DevConfig):
@@ -30,6 +31,14 @@ def create_app(config=DevConfig):
 
     # Set the upload folder for audio files
     app.config['AUDIO_UPLOAD_FOLDER'] = '../Audio'
+
+    # Check if the "Images" folder exists, create it if it doesn't
+    if not os.path.exists(app.config['UPLOAD_FOLDER']):
+        os.makedirs(app.config['UPLOAD_FOLDER'])
+
+    # Check if the "Audio" folder exists, create it if it doesn't
+    if not os.path.exists(app.config['AUDIO_UPLOAD_FOLDER']):
+        os.makedirs(app.config['AUDIO_UPLOAD_FOLDER'])
 
     # Set the allowed file extensions for uploaded files
     app.config['ALLOWED_EXTENSIONS'] = {'png', 'jpg', 'jpeg', 'webp'}
