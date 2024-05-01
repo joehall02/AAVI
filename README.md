@@ -88,7 +88,7 @@ This is my submission for my final year university project. I was asked to ident
 
 ## 5. Roadmap
 
-So far I have developed the main functionalities that I intended to develop over the course of this project. However, in the future I would like to add support for users to be able to interact with each other by sharing their scanned images. I would also like to move the the application to a cloud hosting provider to allow for scalability of my deliverable.
+So far I have developed the main functionalities that I intended to develop over the course of this project. However, in the future I would like to add support for users to be able to interact with each other by sharing their scanned images. Also, adding some form of voice recognition would be well suited to my application and would improve the accessibility of my project. I would also like to move the the application to a cloud hosting provider to allow for scalability of my deliverable.
 
 ## 6. Acknowledgements
 
