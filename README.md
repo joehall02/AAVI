@@ -49,25 +49,39 @@ This is my submission for my final year university project. I was asked to ident
 #### Clone the GitHub repo onto your machine
 
 #### Cd into the backend directory
-- cd backend/
+```shell
+cd backend/
+```
 
 #### Run the virtual environment
-- pipenv shell
+```shell
+pipenv shell
+```
 
 #### Run the following command to install packages
-- pip install -r requirements.txt
+```shell
+pip install -r requirements.txt
+```
 
 #### Run the backend (flask app will be running on port 5000)
-- python3 run.py
+```shell
+python3 run.py
+```
 
 #### Cd into client directory
-- cd client/
+```shell
+cd client/
+```
 
 #### Run the following command to install dependancies
-- npm install
+```shell
+npm install
+```
 
 #### Run the frontend (react app will be running on port 3000)
-- npm start
+```shell
+npm start
+```
 
 ## 4. Usage
 
