@@ -8,4 +8,4 @@ images_ns = Namespace('Images', description='Image operations')
 @images_ns.route('/<path:filename>')
 class ImageResource(Resource):
     def get(self, filename):
-        return send_from_directory('../Images', filename)
+        return send_from_directory('./Images', filename)

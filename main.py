@@ -18,7 +18,7 @@ import os
 
 def create_app(config=DevConfig):
     # Create Flask application instance
-    app = Flask(__name__)
+    app = Flask(__name__, static_url_path='/',static_folder='./client/build')
 
     # Load configuration from DevConfig class
     app.config.from_object(config)
@@ -27,10 +27,10 @@ def create_app(config=DevConfig):
     CORS(app)
 
     # Set the upload folder for images
-    app.config['UPLOAD_FOLDER'] = '../Images'
+    app.config['UPLOAD_FOLDER'] = './Images'
 
     # Set the upload folder for audio files
-    app.config['AUDIO_UPLOAD_FOLDER'] = '../Audio'
+    app.config['AUDIO_UPLOAD_FOLDER'] = './Audio'
 
     # Check if the "Images" folder exists, create it if it doesn't
     if not os.path.exists(app.config['UPLOAD_FOLDER']):
@@ -64,6 +64,13 @@ def create_app(config=DevConfig):
     api.add_namespace(images_ns)
     api.add_namespace(audio_ns)
 
+    @app.route('/')
+    def index():
+        return app.send_static_file('index.html')
+    
+    @app.errorhandler(404)
+    def not_found(e):
+        return app.send_static_file('index.html')
 
     @app.shell_context_processor
     def make_shell_context():

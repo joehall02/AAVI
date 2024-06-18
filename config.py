@@ -20,7 +20,10 @@ class DevConfig(Config):
 
 # Creating a production configuration class
 class ProdConfig(Config):
-    pass
+    SQLALCHEMY_DATABASE_URI = "sqlite:///" + os.path.join(BASE_DIR, 'dev.db')
+    DEBUG = config('DEBUG')
+    SQLALCHEMY_ECHO = config('ECHO')
+    SQLALCHEMY_TRACK_MODIFICATIONS = config('SQLALCHEMY_TRACK_MODIFICATIONS')
 
 # Creating a test configuration class
 class TestConfig(Config):

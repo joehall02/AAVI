@@ -64,7 +64,7 @@ def analyse_image(client, encoded_image):
     
     # Create a payload to send to the OpenAI API
     response = client.chat.completions.create(
-        model="gpt-4-vision-preview",
+        model="gpt-4-turbo",
         
         messages=[
              # Add a system message to the request explaining the role of the AI
@@ -133,7 +133,7 @@ def analyse_message(client, encoded_image, messages):
 
     # Create a payload to send to the OpenAI API
     response = client.chat.completions.create(
-        model="gpt-4-vision-preview",
+        model="gpt-4-turbo",
         messages=messages_request,
         max_tokens=200,                    
     )      
@@ -256,14 +256,15 @@ class ImageAnalysisResource(Resource):
                 title = title.replace('"', '')
 
                 # Create a new conversation with the image details
-                new_conversation = Conversation(title=title, image_path=image_path, summary=ai_response, tts_audio_path=nameOfFile, account_id=account_id)
+                new_conversation = Conversation(title=title, image_path=unique_filename, summary=ai_response, tts_audio_path=nameOfFile, account_id=account_id)
 
                 # Save the conversation to the database
                 new_conversation.save()
 
                 return {'message': 'Image uploaded and analyzed successfully', 'conversation': f'{new_conversation.summary}'}, 201
-            except:
+            except Exception as e:
                 remove(image_path)
+                print(str(e))
                 return {'message': 'Invalid API key'}, 400
 
         
@@ -311,17 +312,18 @@ class ImageAnalysisResource(Resource):
         tts_response = generate_text_to_speech(client, data.get('content'))
 
         # Save the audio file to the audio upload folder
-        audio_path = os.path.join(current_app.config['AUDIO_UPLOAD_FOLDER'], f"{conversation_id}_{last_message_number}.mp3")
+        audio_name = f"{conversation_id}_{last_message_number}.mp3"
+        audio_path = os.path.join(current_app.config['AUDIO_UPLOAD_FOLDER'], audio_name)
         tts_response.stream_to_file(audio_path)
 
         # Create a new message with the content, message number and conversation ID
-        new_message = Message(content=data.get('content'), message_number=last_message_number, type='User', tts_audio_path=audio_path, conversation_id=conversation_id) 
+        new_message = Message(content=data.get('content'), message_number=last_message_number, type='User', tts_audio_path=audio_name, conversation_id=conversation_id) 
 
         # Save the message to the database
         new_message.save()
 
         # Get the encoded image using the image path
-        encoded_image = encode_image(conversation.image_path)
+        encoded_image = encode_image(os.path.join(current_app.config['UPLOAD_FOLDER'], conversation.image_path))
 
         # Get all the messages for the conversation
         messages = Message.query.filter_by(conversation_id=conversation_id).order_by(Message.message_number).all()
@@ -333,11 +335,12 @@ class ImageAnalysisResource(Resource):
         tts_response = generate_text_to_speech(client, ai_response)
 
         # Save the audio file to the audio upload folder
-        audio_path = os.path.join(current_app.config['AUDIO_UPLOAD_FOLDER'], f"{conversation_id}_{last_message_number + 1}.mp3")
+        audio_name = f"{conversation_id}_{last_message_number + 1}.mp3"
+        audio_path = os.path.join(current_app.config['AUDIO_UPLOAD_FOLDER'], audio_name)
         tts_response.stream_to_file(audio_path)
 
         # Create a new message with the AI response, message number and conversation ID
-        ai_new_message = Message(content=ai_response, message_number=last_message_number + 1, type='AI', tts_audio_path=audio_path, conversation_id=conversation_id)
+        ai_new_message = Message(content=ai_response, message_number=last_message_number + 1, type='AI', tts_audio_path=audio_name, conversation_id=conversation_id)
 
         # Save the message to the database
         ai_new_message.save()

@@ -8,4 +8,4 @@ audio_ns = Namespace('Audio', description='Audio operations')
 @audio_ns.route('/<path:filename>')
 class AudioResource(Resource):
     def get(self, filename):
-        return send_from_directory('../Audio', filename)
+        return send_from_directory('./Audio', filename)
