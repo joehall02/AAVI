@@ -1,7 +1,7 @@
 from flask import Flask
 from flask_restx import Api
 from models import Account, Message, Conversation, APIKey
-from config import DevConfig
+from config import DevConfig, ProdConfig, TestConfig
 from exts import db
 from flask_migrate import Migrate
 from flask_jwt_extended import JWTManager
@@ -14,31 +14,33 @@ from api.audio import audio_ns
 from api.images import images_ns
 from flask_cors import CORS
 import os
+import cloudinary
+from dotenv import load_dotenv
 
+# Load environment variables from .env file
+load_dotenv()
 
-def create_app(config=DevConfig):
+def create_app(config=ProdConfig):
     # Create Flask application instance
     app = Flask(__name__, static_url_path='/',static_folder='./client/build')
 
-    # Load configuration from DevConfig class
+    # Load environment variables
+    CLOUDINARY_CLOUD_NAME = os.getenv('CLOUDINARY_CLOUD_NAME')
+    CLOUDINARY_API_KEY = os.getenv('CLOUDINARY_API_KEY')
+    CLOUDINARY_API_SECRET = os.getenv('CLOUDINARY_API_SECRET')
+
+    # Configure Cloudinary
+    cloudinary.config(
+        cloud_name = CLOUDINARY_CLOUD_NAME,
+        api_key = CLOUDINARY_API_KEY,
+        api_secret = CLOUDINARY_API_SECRET
+    )
+
+    # Load configuration from config class
     app.config.from_object(config)
 
     # Enable CORS
     CORS(app)
-
-    # Set the upload folder for images
-    app.config['UPLOAD_FOLDER'] = './Images'
-
-    # Set the upload folder for audio files
-    app.config['AUDIO_UPLOAD_FOLDER'] = './Audio'
-
-    # Check if the "Images" folder exists, create it if it doesn't
-    if not os.path.exists(app.config['UPLOAD_FOLDER']):
-        os.makedirs(app.config['UPLOAD_FOLDER'])
-
-    # Check if the "Audio" folder exists, create it if it doesn't
-    if not os.path.exists(app.config['AUDIO_UPLOAD_FOLDER']):
-        os.makedirs(app.config['AUDIO_UPLOAD_FOLDER'])
 
     # Set the allowed file extensions for uploaded files
     app.config['ALLOWED_EXTENSIONS'] = {'png', 'jpg', 'jpeg', 'webp'}

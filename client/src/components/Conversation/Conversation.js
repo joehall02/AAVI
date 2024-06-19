@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useContext } from "react";
 import UserContext from "../UserContext/UserContext";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import Message from "../Message/Message";
 import "./Conversation.css";
 
@@ -53,6 +53,8 @@ const Conversation = () => {
     });
   }, []);
 
+  const navigate = useNavigate(); // Get the navigate object from the useNavigate hook
+
   // Function to play the audio
   const audio = useRef(null);
 
@@ -64,8 +66,28 @@ const Conversation = () => {
     }
 
     // Get the audio source and play the audio
-    audio.current = new Audio(`http://127.0.0.1:5000/Audio/${audiosrc}`);
+    audio.current = new Audio(`${audiosrc}`);
     audio.current.play();
+  };
+
+  // Function to delete the conversation
+  const deleteConversation = async (conversationId) => {
+    // Send a DELETE request to the server to delete the conversation
+    const response = await fetch(`/Gallery/conversation/${conversationId}`, {
+      method: "DELETE",
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("access_token")}`, // Set the Authorization header with the access token
+      },
+    });
+
+    // If the response is not received, throw an error
+    if (!response.ok) {
+      const message = `An error has occured: ${response.status}`;
+      throw new Error(message);
+    }
+
+    // Redirect the user to the Gallery page
+    navigate("/gallery");
   };
 
   if (isLoading) {
@@ -89,7 +111,7 @@ const Conversation = () => {
             {/* Conversation image */}
             <div className="col-10 mx-auto mb-3" aria-label="Conversation Image">
               <div className="w-100 text-center">
-                <img src={`http://127.0.0.1:5000/Images/${conversation.image_path}`} className="img-fluid" style={{ maxHeight: "700px", borderRadius: "5px" }} alt="Scanned Image" />
+                <img src={`${conversation.image_path}`} className="img-fluid" style={{ maxHeight: "700px", borderRadius: "5px" }} alt="Scanned Image" />
               </div>
             </div>
             {/* Date and summary */}
@@ -100,9 +122,14 @@ const Conversation = () => {
               <p>
                 <strong>Summary:</strong> {conversation.summary}
               </p>
-              <button style={{ border: "none", background: "none", padding: 0, cursor: "pointer" }} onClick={() => playAudio(conversation.tts_audio_path)} aria-label="Play summary audio">
-                <i className="bi bi-soundwave text-white custom-audio-icon"></i>
-              </button>
+              <div className="d-flex justify-content-between">
+                <button style={{ border: "none", background: "none", padding: 0, cursor: "pointer" }} onClick={() => playAudio(conversation.tts_audio_path)} aria-label="Play summary audio">
+                  <i className="bi bi-soundwave text-white custom-icon"></i>
+                </button>
+                <button style={{ border: "none", background: "none", padding: 0, cursor: "pointer" }} onClick={() => deleteConversation(conversation.id)} aria-label="Delete conversation">
+                  <i className="bi bi-trash text-white custom-icon"></i>
+                </button>
+              </div>
             </div>
 
             {/* Chatbot title */}

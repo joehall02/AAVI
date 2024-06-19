@@ -146,9 +146,7 @@ const ScanResults = () => {
       {/* Display the scanned image if data is available */}
       <div className="d-flex justify-content-center mt-3" aria-label="Uploaded Image">
         <div className="col-12 col-lg-6 text-center">
-          <div className="w-100">
-            {conversation && <img src={`http://127.0.0.1:5000/Images/${conversation.image_path}`} className="img-fluid" style={{ maxHeight: "700px", borderRadius: "5px" }} alt="Scanned Image" />}
-          </div>
+          <div className="w-100">{conversation && <img src={`${conversation.image_path}`} className="img-fluid" style={{ maxHeight: "700px", borderRadius: "5px" }} alt="Scanned Image" />}</div>
         </div>
       </div>
 

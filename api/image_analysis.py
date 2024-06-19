@@ -1,6 +1,9 @@
 import os
+import uuid
 import requests
 import base64
+import cloudinary
+import io
 
 from flask_restx import Namespace, Resource, fields
 from models import Conversation, Account, Message
@@ -9,6 +12,9 @@ from flask import Flask, request, current_app
 from os import remove
 from werkzeug.utils import secure_filename
 from openai import OpenAI
+from cloudinary import api
+from cloudinary.uploader import upload
+from PIL import Image
 
 # Define a namespace for the image analysis operations
 image_analysis_ns = Namespace('Image Analysis', description='Image Analysis operations')
@@ -37,23 +43,18 @@ message_model = image_analysis_ns.model('Message', {
 # Function to check if the file type is allowed
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in current_app.config['ALLOWED_EXTENSIONS']
-
-# Function to generate a unique filename
-def generate_unique_filename(filename):
-    # Check if the filename already exists in the upload folder
-    if os.path.exists(os.path.join(current_app.config['UPLOAD_FOLDER'], filename)):
-        # If it does, generate a unique filename by appending a number to the filename
-        count = 1
-        while os.path.exists(os.path.join(current_app.config['UPLOAD_FOLDER'], f"{count}_{filename}")):
-            count += 1
-        return f"{count}_{filename}"
-    else:
-        return filename
     
 # Function to encode the image
-def encode_image(image_path):
-  with open(image_path, "rb") as image_file:
-    return base64.b64encode(image_file.read()).decode('utf-8')
+def encode_image(image_url):
+    # Send a GET request to the image URL
+    response = requests.get(image_url)
+    # Open the image
+    image = Image.open(io.BytesIO(response.content))
+    # Convert the image to base64
+    buffered = io.BytesIO()
+    image.save(buffered, format=image.format)
+    img_str = base64.b64encode(buffered.getvalue()).decode()  # decode the bytes object to get a string
+    return img_str
   
 # Function to create open ai client
 def create_openai_client(user):
@@ -218,16 +219,13 @@ class ImageAnalysisResource(Resource):
         
         # If the file is valid, save it to the upload folder and send it to the OpenAI API
         if file:
-            filename = secure_filename(file.filename) # Secure the filename
-
-            # Generate a unique filename to avoid overwriting existing images
-            unique_filename = generate_unique_filename(filename)
             
-            # image path 
-            image_path = os.path.join(current_app.config['UPLOAD_FOLDER'], unique_filename)
-
-            # Save the file to the upload folder
-            file.save(image_path)
+            # Try catch block to handle errors when uploading the image to Cloudinary
+            try:
+                image_result = upload(file)
+                print(image_result['secure_url'])                
+            except Exception as e:                
+                return {'message': 'Error uploading image to Cloudinary'}, 400
 
             # Try catch block to handle invalid API key
             try:
@@ -235,7 +233,7 @@ class ImageAnalysisResource(Resource):
                 client = create_openai_client(user)
                 
                 # Get the base64 encoded image
-                encoded_image = encode_image(image_path)
+                encoded_image = encode_image(image_result['secure_url'])
 
                 # Analyse the image
                 ai_response = analyse_image(client, encoded_image)
@@ -245,25 +243,29 @@ class ImageAnalysisResource(Resource):
 
                 # Generate text to speech from the AI response
                 tts_response = generate_text_to_speech(client, ai_response)
-
-                # Save the audio file to the audio upload folder                
-                audio_path = os.path.join(current_app.config['AUDIO_UPLOAD_FOLDER'], f"{unique_filename}.mp3")
-                tts_response.stream_to_file(audio_path)
-
-                nameOfFile = f"{unique_filename}.mp3"
+                
+                # Save audio to cloudinary
+                try:
+                    # Upload the audio file to Cloudinary
+                    audio_result = cloudinary.uploader.upload(tts_response, resource_type = "video")                    
+                except Exception as e:
+                    print(f"Error: {e}")                    
+                    return {'message': 'Error uploading audio to Cloudinary'}, 400                    
 
                 # Remove any quotation marks from the title
                 title = title.replace('"', '')
 
                 # Create a new conversation with the image details
-                new_conversation = Conversation(title=title, image_path=unique_filename, summary=ai_response, tts_audio_path=nameOfFile, account_id=account_id)
+                new_conversation = Conversation(title=title, image_path=image_result['secure_url'], summary=ai_response, tts_audio_path=audio_result['secure_url'], account_id=account_id)
 
                 # Save the conversation to the database
                 new_conversation.save()
 
                 return {'message': 'Image uploaded and analyzed successfully', 'conversation': f'{new_conversation.summary}'}, 201
             except Exception as e:
-                remove(image_path)
+                # Delete the image from Cloudinary if there is an error
+                public_id = image_result['public_id']
+                api.delete_resources([public_id])
                 print(str(e))
                 return {'message': 'Invalid API key'}, 400
 
@@ -311,19 +313,22 @@ class ImageAnalysisResource(Resource):
         # Generate tts audio from the user's message
         tts_response = generate_text_to_speech(client, data.get('content'))
 
-        # Save the audio file to the audio upload folder
-        audio_name = f"{conversation_id}_{last_message_number}.mp3"
-        audio_path = os.path.join(current_app.config['AUDIO_UPLOAD_FOLDER'], audio_name)
-        tts_response.stream_to_file(audio_path)
+        # Save audio to cloudinary
+        try:
+            # Upload the audio file to Cloudinary
+            audio_result = cloudinary.uploader.upload(tts_response, resource_type = "video")                    
+        except Exception as e:
+            print(f"Error: {e}")                    
+            return {'message': 'Error uploading audio to Cloudinary'}, 400        
 
         # Create a new message with the content, message number and conversation ID
-        new_message = Message(content=data.get('content'), message_number=last_message_number, type='User', tts_audio_path=audio_name, conversation_id=conversation_id) 
+        new_message = Message(content=data.get('content'), message_number=last_message_number, type='User', tts_audio_path=audio_result['secure_url'], conversation_id=conversation_id) 
 
         # Save the message to the database
         new_message.save()
 
         # Get the encoded image using the image path
-        encoded_image = encode_image(os.path.join(current_app.config['UPLOAD_FOLDER'], conversation.image_path))
+        encoded_image = encode_image(conversation.image_path)
 
         # Get all the messages for the conversation
         messages = Message.query.filter_by(conversation_id=conversation_id).order_by(Message.message_number).all()
@@ -334,13 +339,16 @@ class ImageAnalysisResource(Resource):
         # Generate tts audio from the AI response
         tts_response = generate_text_to_speech(client, ai_response)
 
-        # Save the audio file to the audio upload folder
-        audio_name = f"{conversation_id}_{last_message_number + 1}.mp3"
-        audio_path = os.path.join(current_app.config['AUDIO_UPLOAD_FOLDER'], audio_name)
-        tts_response.stream_to_file(audio_path)
+        # Save audio to cloudinary
+        try:
+            # Upload the audio file to Cloudinary
+            audio_result = cloudinary.uploader.upload(tts_response, resource_type = "video")                    
+        except Exception as e:
+            print(f"Error: {e}")                    
+            return {'message': 'Error uploading audio to Cloudinary'}, 400
 
         # Create a new message with the AI response, message number and conversation ID
-        ai_new_message = Message(content=ai_response, message_number=last_message_number + 1, type='AI', tts_audio_path=audio_name, conversation_id=conversation_id)
+        ai_new_message = Message(content=ai_response, message_number=last_message_number + 1, type='AI', tts_audio_path=audio_result['secure_url'], conversation_id=conversation_id)
 
         # Save the message to the database
         ai_new_message.save()

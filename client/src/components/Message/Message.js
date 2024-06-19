@@ -12,7 +12,7 @@ const Message = ({ isUser, text, audiosrc }) => {
     }
 
     // Get the audio source and play the audio
-    audio.current = new Audio(`http://127.0.0.1:5000/Audio/${audiosrc}`);
+    audio.current = new Audio(`${audiosrc}`);
     audio.current.play();
   };
 

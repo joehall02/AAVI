@@ -9,7 +9,7 @@ const GalleryImage = ({ conversation, handleImageClick }) => {
         <div
           style={{
             height: "300px",
-            backgroundImage: `url(http://127.0.0.1:5000/Images/${conversation.image_path})`,
+            backgroundImage: `url(${conversation.image_path})`,
             backgroundPosition: "center",
             backgroundRepeat: "no-repeat",
             backgroundSize: "cover",

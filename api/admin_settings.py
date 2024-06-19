@@ -1,8 +1,9 @@
 from flask_restx import Namespace, Resource, fields
-from models import Account
+from models import Account, Conversation, Message
 from flask_jwt_extended import jwt_required
 from flask import Flask, request
 from werkzeug.security import generate_password_hash
+import cloudinary
 
 # Define namespace for the account operations
 admin_settings_ns = Namespace('Admin Settings', description='Admin settings operations')
@@ -78,6 +79,25 @@ class AdminSettingResource(Resource):
         if account is None:
             return {'message': 'Account not found'}, 404
         
+        # Delete cloudinary images and audio files
+        conversations = Conversation.query.filter_by(account_id=account_id).all()
+        for conversation in conversations:
+            # Delete the image from Cloudinary
+            image_public_id = conversation.image_path.split('/')[-1].split('.')[0]
+            cloudinary.uploader.destroy(image_public_id)
+
+            # Delete the audio from Cloudinary
+            audio_public_id = conversation.tts_audio_path.split('/')[-1].split('.')[0]
+            cloudinary.uploader.destroy(audio_public_id, resource_type = 'video')
+
+            # Delete all associated messages' audio files
+            messages = Message.query.filter_by(conversation_id=conversation.id).all()
+            for message in messages:
+                audio_public_id = message.tts_audio_path.split('/')[-1].split('.')[0]
+                cloudinary.uploader.destroy(audio_public_id, resource_type = 'video')
+
+        
+        # Delete the account
         account.delete()
         
         return {'message': 'Account deleted successfully'}, 200

@@ -2,6 +2,9 @@ from flask_restx import Namespace, Resource, fields
 from models import Conversation, Message
 from flask_jwt_extended import jwt_required
 from flask import Flask, request
+from exts import db
+import cloudinary
+
 
 # Define a namespace for the Gallery operations
 gallery_ns = Namespace('Gallery', description='Gallery operations')
@@ -49,7 +52,7 @@ class GalleryResource(Resource):
 
 # Define a resource for the '/conversation/int:conversation_id' endpoint
 # Used to get the full conversation details by ID
-@gallery_ns.route('/conversation/<int:conversation_id>', methods=['GET'])
+@gallery_ns.route('/conversation/<int:conversation_id>', methods=['GET', 'DELETE'])
 class ConversationResource(Resource):
     # Get a conversation by ID
     @gallery_ns.marshal_with(conversation_model)
@@ -65,3 +68,29 @@ class ConversationResource(Resource):
 
 
         return conversation, 200
+    
+    # Delete a conversation by ID
+    @jwt_required() # Protect this endpoint with JWT
+    def delete(self, conversation_id):
+        conversation = Conversation.query.get(conversation_id)
+        if conversation is None:
+            return {"message": "Conversation not found"}, 404
+
+        # Delete the image from Cloudinary
+        image_public_id = conversation.image_path.split('/')[-1].split('.')[0]
+        cloudinary.uploader.destroy(image_public_id)
+
+        # Delete the audio from Cloudinary
+        audio_public_id = conversation.tts_audio_path.split('/')[-1].split('.')[0]
+        cloudinary.uploader.destroy(audio_public_id, resource_type = 'video')
+
+        # Delete all associated messages' audio files
+        messages = Message.query.filter_by(conversation_id=conversation_id).all()
+        for message in messages:
+            audio_public_id = message.tts_audio_path.split('/')[-1].split('.')[0]
+            cloudinary.uploader.destroy(audio_public_id, resource_type = 'video')
+
+        db.session.delete(conversation)
+        db.session.commit()
+
+        return {"message": "Conversation and associated resources deleted successfully"}, 200
